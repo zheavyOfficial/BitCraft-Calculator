@@ -483,7 +483,7 @@
             <div class="input-section">
                 <div class="section-title">🔨 Tool Power</div>
                 <div class="input-group">
-                    <label class="input-label" for="toolPowerManual">Manual Override</label>
+                    <label class="input-label" for="toolPowerManual">Tool Power</label>
                     <div class="number-input-container">
                         <input type="number" id="toolPowerManual" class="input-field number-input" placeholder="Enter power directly" value="10" step="1" oninput="updateToolFromPower()">
                         <div class="spinner-buttons">
@@ -616,12 +616,12 @@
                 <div class="result-section">
                     <div class="result-section-title">⚡ Performance</div>
                     <div class="result-line">
-                        <span>With Breaks:</span>
-                        <span id="totalTimeWithBreaks">--</span>
-                    </div>
-                    <div class="result-line">
                         <span>Without Breaks:</span>
                         <span id="totalTimeFromStart">--</span>
+                    </div>
+                    <div class="result-line">
+                        <span>Break Time:</span>
+                        <span id="totalBreakTime">--</span>
                     </div>
                     <div class="result-line result-line-large">
                         <span id="breaksLabel">Breaks Needed:</span>
@@ -632,18 +632,22 @@
                 <div class="result-section">
                     <div class="result-section-title">🔋 Stamina</div>
                     <div class="result-line">
-                        <span>Stamina Used:</span>
+                        <span>Total Stamina Needed:</span>
                         <span id="staminaUsage">--</span>
-                    </div>
-                    <div class="result-line">
-                        <span>Current:</span>
-                        <span id="currentStaminaDisplay">--</span>
                     </div>
                     <div class="result-line">
                         <span>Regen Rate:</span>
                         <span id="regenRateDisplay">--</span>
                     </div>
+                    <div class="result-line result-line-large" id="foodNeededLine">
+                        <span>Food Needed:</span>
+                        <span id="foodConsumptions">--</span>
+                    </div>
                 </div>
+            </div>
+
+            <div class="stamina-warning" id="noFoodWarning" style="display: none;">
+                ⚠️ No food buff active! Consider using food to reduce crafting time and stamina breaks.
             </div>
         </div>
         
@@ -812,7 +816,7 @@
                         
                         const actualPower = toolData[match.tier][match.rarity];
                         document.getElementById('toolPowerDisplay').textContent = 
-                            `Tool: ${actualPower} | Manual: ${manualPower} | Time: ${tickTimes[match.tier]}s`;
+                            `Tool: ${actualPower} | Manual: ${manualPower}`;
                     }, 50);
                 }
                 
@@ -846,12 +850,10 @@
             
             const rarity = raritySelect.value;
             const power = toolData[tier][rarity];
-            const time = tickTimes[tier];
             
-            document.getElementById('toolPowerDisplay').textContent = 
-                `Power: ${power} | Time: ${time}s`;
-            
-            document.getElementById('tickTimeTool').value = time;
+            document.getElementById('toolPowerDisplay').textContent = `Power: ${power}`;
+            document.getElementById('toolPowerManual').value = power;
+            document.getElementById('toolPowerManual').classList.remove('manual-power-input');
                 
             setTimeout(calculateTime, 100);
         }
@@ -874,12 +876,8 @@
             
             let tickTime = parseFloat(document.getElementById('tickTimeTool').value);
             
-            // Apply crafting speed bonus from food
+            // Get food type for stamina calculations
             const foodType = document.getElementById('foodType').value;
-            const craftingSpeedBonus = foodData[foodType].craftingSpeed;
-            if (craftingSpeedBonus > 0) {
-                tickTime = tickTime * (100 / (100 + craftingSpeedBonus));
-            }
             
             // Get stamina values
             const maxStamina = parseInt(document.getElementById('maxStamina').value) || 100;
@@ -891,9 +889,12 @@
             const calculateBtn = document.querySelector('.calculate-btn');
             const breaksLabel = document.getElementById('breaksLabel');
             const breaksResult = document.getElementById('breaksNeeded');
+            const foodNeededLine = document.getElementById('foodNeededLine');
+            const noFoodWarning = document.getElementById('noFoodWarning');
             
             resultContainer.classList.remove('show');
             errorContainer.style.display = 'none';
+            noFoodWarning.style.display = 'none';
             
             calculateBtn.classList.add('calculating');
             setTimeout(() => calculateBtn.classList.remove('calculating'), 500);
@@ -940,16 +941,19 @@
             const staminaDeficit = Math.max(0, staminaUsed - currentStamina);
             
             let totalTimeWithBreaks = baseRemainingSeconds;
+            let totalBreakTime = 0;
             let breaksNeeded = 0;
             
             if (staminaDeficit > 0) {
-                // Calculate how many breaks are needed
+                // Calculate how many breaks are needed and total break time
                 let remainingStaminaNeeded = staminaDeficit;
                 let workTime = currentStamina; // Can work for current stamina seconds
                 
                 while (remainingStaminaNeeded > 0) {
                     breaksNeeded++;
-                    const breakTime = Math.min(maxStamina, remainingStaminaNeeded) / staminaRegen;
+                    const staminaToRestore = Math.min(maxStamina, remainingStaminaNeeded);
+                    const breakTime = staminaToRestore / staminaRegen;
+                    totalBreakTime += breakTime;
                     totalTimeWithBreaks += breakTime;
                     
                     remainingStaminaNeeded -= maxStamina;
@@ -966,9 +970,25 @@
                 breaksLabel.parentElement.className = 'result-line result-line-large';
             }
             
+            // Highlight food needed and show warning if no food
+            if (foodType === 'none') {
+                foodNeededLine.className = 'result-line result-line-error';
+                noFoodWarning.style.display = 'block';
+            } else {
+                foodNeededLine.className = 'result-line result-line-error'; // Always red when food is active
+            }
+            
             const remainingTimeFormatted = formatTime(baseRemainingSeconds);
             const totalTimeFormatted = formatTime(baseTotalSeconds);
             const totalTimeWithBreaksFormatted = formatTime(totalTimeWithBreaks);
+            const totalBreakTimeFormatted = formatTime(totalBreakTime);
+            
+            // Calculate food consumptions needed (30 min duration each)
+            let foodConsumptions = 0;
+            if (foodType !== 'none') {
+                const totalTimeMinutes = totalTimeWithBreaks / 60;
+                foodConsumptions = Math.ceil(totalTimeMinutes / 30);
+            }
             
             setTimeout(() => {
                 document.getElementById('resultValue').textContent = totalTimeWithBreaksFormatted;
@@ -978,9 +998,9 @@
                 document.getElementById('progressPercent').textContent = progressPercent + '%';
                 document.getElementById('staminaUsage').textContent = Math.ceil(staminaUsed) + ' stamina';
                 document.getElementById('breaksNeeded').textContent = breaksNeeded + (breaksNeeded === 1 ? ' break' : ' breaks');
-                document.getElementById('totalTimeWithBreaks').textContent = totalTimeWithBreaksFormatted;
-                document.getElementById('currentStaminaDisplay').textContent = currentStamina + '/' + maxStamina;
+                document.getElementById('totalBreakTime').textContent = totalBreakTime > 0 ? totalBreakTimeFormatted : 'None';
                 document.getElementById('regenRateDisplay').textContent = staminaRegen.toFixed(2) + '/s';
+                document.getElementById('foodConsumptions').textContent = foodType === 'none' ? 'None' : foodConsumptions + (foodConsumptions === 1 ? ' meal' : ' meals');
                 
                 resultContainer.classList.add('show');
             }, 300);
