@@ -1,4 +1,4 @@
-# BitCraft Effort Calculator
+# BitCraft Calculator
 
 A comprehensive calculator for BitCraft crafting time estimation with stamina management and food buff optimization.
 
