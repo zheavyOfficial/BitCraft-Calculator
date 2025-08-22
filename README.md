@@ -14,6 +14,3 @@ A comprehensive calculator for BitCraft crafting time estimation with stamina ma
 
 ## Usage
 Simply enter your task effort, select your tool, and see realistic completion times including stamina breaks.
-
-## Contributing
-Pull requests welcome! Please test thoroughly before submitting.
