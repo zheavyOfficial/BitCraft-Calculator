@@ -12,7 +12,7 @@ A comprehensive calculator for BitCraft crafting time estimation with stamina ma
 - 📱 **Responsive Design** - Works seamlessly on desktop, tablet, and mobile devices
 
 ## Live Demo
-[Try it now]([https://yourusername.github.io/bitcraft-calculator](https://zheavyofficial.github.io/BitCraft-Calculator/))
+[Try it now](https://zheavyofficial.github.io/BitCraft-Calculator/)
 
 ## How to Use
 
