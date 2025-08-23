@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BitCraft Rarity Calculator</title>
+    <link rel="stylesheet" href="css/bitcraft_styles.css">
+    <script src="Js/bitcraft_rarity_calculator.js"></script>
+</head>
+<body>
+    <!-- Navigation Sidebar -->
+    <div class="nav-sidebar">
+        <div class="nav-header">
+            <span class="nav-title">⚡ TOOLS</span>
+        </div>
+        <button class="nav-btn" onclick="window.location.href='index.html'" title="Effort to Time Calculator">
+            <span class="nav-icon">⏱️</span>
+            <span class="nav-label">Effort</span>
+            <span class="nav-sublabel">Calculator</span>
+            <div class="nav-indicator"></div>
+        </button>
+        <button class="nav-btn active" onclick="window.location.href='rarity-calculator.html'" title="Item Rarity Calculator">
+            <span class="nav-icon">💎</span>
+            <span class="nav-label">Rarity</span>
+            <span class="nav-sublabel">Calculator</span>
+            <div class="nav-indicator"></div>
+        </button>
+    </div>
+
+    <div class="calculator-container">
+        <h1 class="title">💎 BitCraft</h1>
+        <p class="subtitle">Tool Rarity Calculator</p>
+        
+        <div class="main-input-row">
+            <!-- Tier & Rarity Selection -->
+            <div class="input-section">
+                <div class="section-title">🎯 Target Configuration</div>
+                
+                <div class="input-group">
+                    <label class="input-label" for="tier">Tool Tier</label>
+                    <select class="dropdown-select" id="tier" onchange="refreshRarityOptions()">
+                        <option value="2">Tier 2</option>
+                        <option value="3" selected>Tier 3</option>
+                        <option value="4">Tier 4</option>
+                        <option value="5">Tier 5</option>
+                        <option value="6">Tier 6</option>
+                        <option value="7">Tier 7</option>
+                        <option value="8">Tier 8</option>
+                        <option value="9">Tier 9</option>
+                        <option value="10">Tier 10</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label" for="rarityGoal">Target Rarity</label>
+                    <select class="dropdown-select" id="rarityGoal">
+                        <option value="Uncommon">Uncommon</option>
+                        <option value="Rare">Rare</option>
+                    </select>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-title">📊 Rarity Requirements</div>
+                    <div class="info-content">
+                        <div class="info-line">• Uncommon: Tier 2+</div>
+                        <div class="info-line">• Rare: Tier 3+</div>
+                        <div class="info-line">• Epic: Tier 4+</div>
+                        <div class="info-line">• Legendary: Tier 5+</div>
+                        <div class="info-line">• Mythic: Tier 6+</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Probability Display -->
+            <div class="input-section">
+                <div class="section-title">🎲 Single Craft Probability</div>
+                
+                <div class="probability-display">
+                    <div class="probability-main">
+                        <span class="probability-label">Chance for</span>
+                        <span class="probability-target" id="targetDisplay">Uncommon at T3</span>
+                    </div>
+                    <div class="probability-value" id="singleChance">--</div>
+                    <div class="probability-subtitle">per crafting attempt</div>
+                </div>
+
+                <div class="distribution-panel">
+                    <div class="distribution-title">Full Distribution at Selected Tier</div>
+                    <div id="distributionBreakdown" class="distribution-breakdown">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Multiple Attempts Calculator -->
+            <div class="input-section">
+                <div class="section-title">📈 Multiple Attempts</div>
+                
+                <div class="attempts-grid" id="attemptsGrid">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+
+                <div class="custom-attempts">
+                    <label class="input-label">Custom Number of Tools</label>
+                    <div class="number-input-container">
+                        <input type="number" id="customAttempts" class="input-field number-input" 
+                               placeholder="Enter number" value="50" min="1" max="10000">
+                        <div class="spinner-buttons">
+                            <div class="spinner-btn up" onclick="adjustValue('customAttempts', 10)">+</div>
+                            <div class="spinner-btn down" onclick="adjustValue('customAttempts', -10)">-</div>
+                        </div>
+                    </div>
+                    <div class="custom-result" id="customResult">--</div>
+                </div>
+            </div>
+        </div>
+        
+        <button class="calculate-btn" onclick="calculateRarity()">
+            💎 Calculate Probabilities
+        </button>
+        
+        <div id="resultContainer" class="result-container">
+            <div class="result-header">📊 Calculation Results</div>
+            
+            <div class="result-sections">
+                <div class="result-section">
+                    <div class="result-section-title">🎯 Target Summary</div>
+                    <div class="result-line result-line-large">
+                        <span>Target:</span>
+                        <span id="resultTarget">--</span>
+                    </div>
+                    <div class="result-line result-line-large">
+                        <span>Single Try:</span>
+                        <span id="resultSingle">--</span>
+                    </div>
+                </div>
+
+                <div class="result-section">
+                    <div class="result-section-title">📈 Expected Attempts</div>
+                    <div class="result-line">
+                        <span>50% chance:</span>
+                        <span id="result50">--</span>
+                    </div>
+                    <div class="result-line">
+                        <span>90% chance:</span>
+                        <span id="result90">--</span>
+                    </div>
+                    <div class="result-line">
+                        <span>99% chance:</span>
+                        <span id="result99">--</span>
+                    </div>
+                </div>
+
+                <div class="result-section">
+                    <div class="result-section-title">💰 Resource Cost</div>
+                    <div class="result-line">
+                        <span>Avg. attempts:</span>
+                        <span id="avgAttempts">--</span>
+                    </div>
+                    <div class="result-line">
+                        <span>Materials (est.):</span>
+                        <span id="materialsEst">--</span>
+                    </div>
+                    <div class="result-line">
+                        <span>Time (est.):</span>
+                        <span id="timeEst">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="probability-chart" id="probabilityChart">
+                <!-- Chart will be rendered here -->
+            </div>
+        </div>
+        
+        <div id="errorContainer" style="display: none;"></div>
+    </div>
+
+    <style>
+        /* Additional styles specific to rarity calculator */
+        .info-box {
+            background: rgba(100, 181, 246, 0.1);
+            border: 1px solid rgba(100, 181, 246, 0.3);
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 15px;
+        }
+
+        .info-title {
+            font-weight: bold;
+            color: #64b5f6;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+
+        .info-content {
+            font-size: 0.85em;
+            color: #90a4ae;
+        }
+
+        .info-line {
+            margin: 4px 0;
+        }
+
+        .probability-display {
+            background: linear-gradient(135deg, rgba(156, 39, 176, 0.2), rgba(103, 58, 183, 0.2));
+            border: 2px solid rgba(156, 39, 176, 0.4);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .probability-main {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .probability-label {
+            font-size: 0.9em;
+            color: #b39ddb;
+        }
+
+        .probability-target {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #ce93d8;
+        }
+
+        .probability-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #ba68c8;
+            text-shadow: 0 0 20px rgba(186, 104, 200, 0.5);
+        }
+
+        .probability-subtitle {
+            font-size: 0.85em;
+            color: #b39ddb;
+            margin-top: 5px;
+        }
+
+        .distribution-panel {
+            background: rgba(69, 90, 100, 0.2);
+            border: 1px solid rgba(69, 90, 100, 0.4);
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 15px;
+        }
+
+        .distribution-title {
+            font-size: 0.9em;
+            font-weight: bold;
+            color: #64b5f6;
+            margin-bottom: 8px;
+        }
+
+        .distribution-breakdown {
+            display: grid;
+            gap: 5px;
+        }
+
+        .distribution-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 8px;
+            background: rgba(55, 71, 79, 0.4);
+            border-radius: 4px;
+            font-size: 0.85em;
+        }
+
+        .distribution-rarity {
+            color: #cfd8dc;
+        }
+
+        .distribution-chance {
+            font-weight: bold;
+        }
+
+        .attempts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .attempt-item {
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+            border-radius: 6px;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .attempt-count {
+            font-size: 0.9em;
+            color: #81c784;
+            margin-bottom: 4px;
+        }
+
+        .attempt-chance {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #66bb6a;
+        }
+
+        .custom-attempts {
+            background: rgba(255, 152, 0, 0.1);
+            border: 1px solid rgba(255, 152, 0, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .custom-result {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(255, 152, 0, 0.2);
+            border-radius: 6px;
+            text-align: center;
+            font-weight: bold;
+            color: #ffb74d;
+        }
+
+        /* Rarity color coding */
+        .rarity-common { color: #b0bec5; }
+        .rarity-uncommon { color: #66bb6a; }
+        .rarity-rare { color: #42a5f5; }
+        .rarity-epic { color: #ab47bc; }
+        .rarity-legendary { color: #ffa726; }
+        .rarity-mythic { color: #ef5350; }
+    </style>
+</body>
+</html>
