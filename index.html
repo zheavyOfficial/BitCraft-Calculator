@@ -5,246 +5,335 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BitCraft Effort Calculator</title>
     <link rel="stylesheet" href="css/bitcraft_styles.css">
-    <script src="Js\bitcraft_Effort_Time Calculator.js"></script>
+    <script src="Js/bitcraft_Effort_Time Calculator.js"></script>
 </head>
-<body>
-    <!-- Navigation Sidebar -->
-    <div class="nav-sidebar">
-        <div class="nav-header">
-            <span class="nav-title">⚡ TOOLS</span>
-        </div>
-        <button class="nav-btn active" onclick="window.location.href='index.html'" title="Effort to Time Calculator">
-            <span class="nav-icon">⏱️</span>
-            <span class="nav-label">Effort</span>
-            <span class="nav-sublabel">Calculator</span>
-            <div class="nav-indicator"></div>
-        </button>
-        <button class="nav-btn" onclick="window.location.href='rarity-calculator.html'" title="Item Rarity Calculator">
-            <span class="nav-icon">💎</span>
-            <span class="nav-label">Rarity</span>
-            <span class="nav-sublabel">Calculator</span>
-            <div class="nav-indicator"></div>
-        </button>
-    </div>
-
-    <div class="calculator-container">
-        <h1 class="title">⚒️ BitCraft</h1>
-        <p class="subtitle">Effort → Time Calculator</p>
-        
-        <div class="main-input-row">
-            <!-- Task & Effort Section -->
-            <div class="input-section">
-                <div class="section-title">📋 Task & Effort</div>
-                <div class="input-group">
-                    <label class="input-label" for="taskEffortTool">Task Effort Required</label>
-                    <div class="number-input-container">
-                        <input type="number" id="taskEffortTool" class="input-field number-input" placeholder="e.g., 27000" value="27000" step="1">
-                        <div class="spinner-buttons">
-                            <div class="spinner-btn up" onclick="adjustValue('taskEffortTool', 10)">+</div>
-                            <div class="spinner-btn down" onclick="adjustValue('taskEffortTool', -10)">-</div>
-                        </div>
-                    </div>
+<body class="dark-mode">
+    <!-- Combined Header with Navigation -->
+    <header class="main-header">
+        <div class="header-content">
+            <div class="logo-section">
+                <div class="logo">
+                    <span class="logo-icon">🔨</span>
+                    <span class="logo-sparkle">✨</span>
                 </div>
-
-                <div class="input-group">
-                    <label class="input-label" for="effortDoneTool">Effort Already Done</label>
-                    <div class="number-input-container">
-                        <input type="number" id="effortDoneTool" class="input-field number-input" placeholder="e.g., 5000" value="0" step="1">
-                        <div class="spinner-buttons">
-                            <div class="spinner-btn up" onclick="adjustValue('effortDoneTool', 10)">+</div>
-                            <div class="spinner-btn down" onclick="adjustValue('effortDoneTool', -10)">-</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="input-group">
-                    <label class="input-label" for="tickTimeTool">Time per Tick (seconds)</label>
-                    <div class="number-input-container">
-                        <input type="number" id="tickTimeTool" class="input-field number-input" placeholder="e.g., 1.26" value="1.55" step="0.01">
-                        <div class="spinner-buttons">
-                            <div class="spinner-btn up" onclick="adjustValue('tickTimeTool', 0.01)">+</div>
-                            <div class="spinner-btn down" onclick="adjustValue('tickTimeTool', -0.01)">-</div>
-                        </div>
-                    </div>
-                </div>
+                <span class="logo-text">BitCraft Tools</span>
             </div>
-
-            <!-- Tool Power Section -->
-            <div class="input-section">
-                <div class="section-title">🔨 Tool Power</div>
-                <div class="input-group">
-                    <label class="input-label" for="toolPowerManual">Tool Power</label>
-                    <div class="number-input-container">
-                        <input type="number" id="toolPowerManual" class="input-field number-input" placeholder="Enter power directly" value="10" step="1" oninput="updateToolFromPower()">
-                        <div class="spinner-buttons">
-                            <div class="spinner-btn up" onclick="adjustToolPower('toolPowerManual', 1)">+</div>
-                            <div class="spinner-btn down" onclick="adjustToolPower('toolPowerManual', -1)">-</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="tool-selector">
-                    <div class="tool-selector-title">Tool Selection</div>
-                    <div class="dropdown-row">
-                        <div class="dropdown-group">
-                            <label class="dropdown-label">Tier</label>
-                            <select class="dropdown-select" id="toolTier" onchange="updateToolPower()">
-                                <option value="0">T0</option>
-                                <option value="1" selected>T1</option>
-                                <option value="2">T2</option>
-                                <option value="3">T3</option>
-                                <option value="4">T4</option>
-                                <option value="5">T5</option>
-                                <option value="6">T6</option>
-                                <option value="7">T7</option>
-                                <option value="8">T8</option>
-                                <option value="9">T9</option>
-                                <option value="10">T10</option>
-                            </select>
-                        </div>
-                        <div class="dropdown-group">
-                            <label class="dropdown-label">Rarity</label>
-                            <select class="dropdown-select" id="toolRarity" onchange="updateToolPower()">
-                                <option value="common">Common</option>
-                                <option value="uncommon">Uncommon</option>
-                                <option value="rare">Rare</option>
-                                <option value="epic">Epic</option>
-                                <option value="legendary">Legendary</option>
-                                <option value="mythic">Mythic</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="power-display" id="toolPowerDisplay">
-                        Power: 10 | Time: 1.55s
-                    </div>
-                </div>
-            </div>
-
-            <!-- Stamina & Food Section -->
-            <div class="stamina-section">
-                <div class="section-title">🔋 Stamina & Food</div>
-                <div class="input-row">
-                    <div class="input-column">
-                        <div class="input-group">
-                            <label class="input-label" for="maxStamina">Max Stamina</label>
-                            <div class="number-input-container">
-                                <input type="number" id="maxStamina" class="input-field number-input" value="100" step="1" oninput="updateCurrentStamina()">
-                                <div class="spinner-buttons">
-                                    <div class="spinner-btn up" onclick="adjustValue('maxStamina', 1)">+</div>
-                                    <div class="spinner-btn down" onclick="adjustValue('maxStamina', -1)">-</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="input-column">
-                        <div class="input-group">
-                            <label class="input-label" for="currentStamina">Current Stamina</label>
-                            <div class="number-input-container">
-                                <input type="number" id="currentStamina" class="input-field number-input" value="100" step="1">
-                                <div class="spinner-buttons">
-                                    <div class="spinner-btn up" onclick="adjustValue('currentStamina', 1)">+</div>
-                                    <div class="spinner-btn down" onclick="adjustValue('currentStamina', -1)">-</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="food-selector">
-                    <div class="food-selector-title">🍖 Food Buff (30min)</div>
-                    <div class="input-group">
-                        <label class="dropdown-label">Food Type</label>
-                        <select class="dropdown-select" id="foodType" onchange="updateFoodStats()">
-                            <option value="none">No Food Buff</option>
-                            <option value="plain">T1 - Plain (+7 regen, +8.2% speed)</option>
-                            <option value="savory">T2 - Savory (+9 regen, +8.4% speed)</option>
-                            <option value="zesty">T3 - Zesty (+11 regen, +8.6% speed)</option>
-                            <option value="fine">T4 - Fine (+13 regen, +8.8% speed)</option>
-                            <option value="succulent">T5 - Succulent (+15 regen, +9.0% speed)</option>
-                            <option value="ambrosial">T6 - Ambrosial (+17 regen, +9.2% speed)</option>
-                        </select>
-                    </div>
-                    <div class="food-stats" id="foodStats">
-                        <div class="food-stat-line">
-                            <span>Stamina Regen:</span>
-                            <span id="staminaRegen">0.25/s (base)</span>
-                        </div>
-                        <div class="food-stat-line">
-                            <span>Crafting Speed:</span>
-                            <span id="craftingSpeed">0%</span>
-                        </div>
-                    </div>
-                    <div class="food-disclaimer" style="margin-top: 10px; font-size: 0.85em; color: #888; font-style: italic;">
-                        ⚠️ Note: Speed buff does not affect tick time in this calculator
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <button class="calculate-btn" onclick="calculateTime()">
-            🕐 Calculate Time
-        </button>
-        
-        <div id="resultContainer" class="result-container">
-            <div class="result-header">📊 Calculation Results</div>
-            <div class="result-main-time" id="resultValue">--</div>
             
-            <div class="result-sections">
-                <div class="result-section">
-                    <div class="result-section-title">📋 Task Progress</div>
-                    <div class="result-line">
-                        <span>Remaining Effort:</span>
-                        <span id="remainingEffort">--</span>
-                    </div>
-                    <div class="result-line">
-                        <span>Remaining Ticks:</span>
-                        <span id="remainingTicks">--</span>
-                    </div>
-                    <div class="result-line result-line-large">
-                        <span>Progress:</span>
-                        <span id="progressPercent">--</span>
-                    </div>
-                </div>
-
-                <div class="result-section">
-                    <div class="result-section-title">⚡ Performance</div>
-                    <div class="result-line">
-                        <span>Without Breaks:</span>
-                        <span id="totalTimeFromStart">--</span>
-                    </div>
-                    <div class="result-line">
-                        <span>Break Time:</span>
-                        <span id="totalBreakTime">--</span>
-                    </div>
-                    <div class="result-line result-line-large">
-                        <span id="breaksLabel">Breaks Needed:</span>
-                        <span id="breaksNeeded">--</span>
-                    </div>
-                </div>
-
-                <div class="result-section">
-                    <div class="result-section-title">🔋 Stamina</div>
-                    <div class="result-line">
-                        <span>Total Stamina Needed:</span>
-                        <span id="staminaUsage">--</span>
-                    </div>
-                    <div class="result-line">
-                        <span>Regen Rate:</span>
-                        <span id="regenRateDisplay">--</span>
-                    </div>
-                    <div class="result-line result-line-large" id="foodNeededLine">
-                        <span>Food Needed:</span>
-                        <span id="foodConsumptions">--</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="stamina-warning" id="noFoodWarning" style="display: none;">
-                ⚠️ No food buff active! Consider using food to reduce crafting time and stamina breaks.
-            </div>
+            <nav class="header-nav">
+                <button class="nav-btn active" onclick="window.location.href='index.html'">
+                    <span class="nav-icon">⏱️</span>
+                    <span class="nav-label">Effort Calculator</span>
+                </button>
+                <button class="nav-btn" onclick="window.location.href='rarity-calculator.html'">
+                    <span class="nav-icon">💎</span>
+                    <span class="nav-label">Rarity Calculator</span>
+                </button>
+                <button class="nav-btn" onclick="window.location.href='materials.html'">
+                    <span class="nav-icon">📦</span>
+                    <span class="nav-label">Tools & Materials</span>
+                </button>
+            </nav>
+            
+            <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+                <span class="theme-icon">🌙</span>
+            </button>
         </div>
-        
-        <div id="errorContainer" style="display: none;"></div>
+    </header>
+
+    <div class="main-wrapper">
+        <div class="calculator-container">
+            <button class="reset-btn-content" onclick="resetToDefaults()" title="Reset all inputs to default values">
+                🔄 Reset
+            </button>
+            <h1 class="title">⚒️ BitCraft</h1>
+            <p class="subtitle">Effort → Time Calculator</p>
+            
+            <div class="main-input-row">
+                <!-- Task & Effort Section -->
+                <div class="input-section">
+                    <div class="section-title">📋 Task & Effort</div>
+                    
+                    <!-- Mode Toggle -->
+                    <div class="mode-toggle-container">
+                        <button class="mode-toggle active" id="craftingMode" onclick="setMode('crafting')">
+                            <span class="mode-icon">🔨</span>
+                            <span>Crafting Mode</span>
+                        </button>
+                        <button class="mode-toggle" id="gatheringMode" onclick="setMode('gathering')">
+                            <span class="mode-icon">⛏️</span>
+                            <span>Gathering Mode</span>
+                        </button>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label" for="taskEffortTool">Task Effort Required</label>
+                        <div class="number-input-container">
+                            <input type="number" id="taskEffortTool" class="input-field number-input" placeholder="e.g., 27000" value="27000" step="1" oninput="validateTaskEffort(); calculateTime()">
+                            <div class="spinner-buttons-large">
+                                <div class="spinner-buttons-row">
+                                    <button class="spinner-btn-large" onclick="adjustValue('taskEffortTool', 10)">+10</button>
+                                    <button class="spinner-btn-large" onclick="adjustValue('taskEffortTool', 100)">+100</button>
+                                    <button class="spinner-btn-large" onclick="adjustValue('taskEffortTool', 1000)">+1k</button>
+                                    <button class="spinner-btn-large" onclick="adjustValue('taskEffortTool', 10000)">+10k</button>
+                                    <button class="spinner-btn-large" onclick="adjustValue('taskEffortTool', 100000)">+100k</button>
+                                </div>
+                                <div class="spinner-buttons-row">
+                                    <button class="spinner-btn-large" onclick="adjustValue('taskEffortTool', -10)">-10</button>
+                                    <button class="spinner-btn-large" onclick="adjustValue('taskEffortTool', -100)">-100</button>
+                                    <button class="spinner-btn-large" onclick="adjustValue('taskEffortTool', -1000)">-1k</button>
+                                    <button class="spinner-btn-large" onclick="adjustValue('taskEffortTool', -10000)">-10k</button>
+                                    <button class="spinner-btn-large" onclick="adjustValue('taskEffortTool', -100000)">-100k</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label" for="effortDoneTool" id="effortLabel">Effort Completed</label>
+                        <div class="number-input-container">
+                            <input type="number" id="effortDoneTool" class="input-field number-input" placeholder="e.g., 5000" value="0" step="1" oninput="validateEffortCompleted(); calculateTime()">
+                            <div class="spinner-buttons-large">
+                                <div class="spinner-buttons-row">
+                                    <button class="spinner-btn-large" onclick="adjustValue('effortDoneTool', 10)">+10</button>
+                                    <button class="spinner-btn-large" onclick="adjustValue('effortDoneTool', 100)">+100</button>
+                                    <button class="spinner-btn-large" onclick="adjustValue('effortDoneTool', 1000)">+1k</button>
+                                    <button class="spinner-btn-large" onclick="adjustValue('effortDoneTool', 10000)">+10k</button>
+                                    <button class="spinner-btn-large" onclick="adjustValue('effortDoneTool', 100000)">+100k</button>
+                                </div>
+                                <div class="spinner-buttons-row">
+                                    <button class="spinner-btn-large" onclick="adjustValue('effortDoneTool', -10)">-10</button>
+                                    <button class="spinner-btn-large" onclick="adjustValue('effortDoneTool', -100)">-100</button>
+                                    <button class="spinner-btn-large" onclick="adjustValue('effortDoneTool', -1000)">-1k</button>
+                                    <button class="spinner-btn-large" onclick="adjustValue('effortDoneTool', -10000)">-10k</button>
+                                    <button class="spinner-btn-large" onclick="adjustValue('effortDoneTool', -100000)">-100k</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label" for="tickTimeTool">Time per Tick (seconds)</label>
+                        <div class="number-input-container">
+                            <input type="number" id="tickTimeTool" class="input-field number-input" placeholder="e.g., 1.26" value="1.55" step="0.01" oninput="calculateTime()">
+                            <div class="spinner-buttons-large">
+                                <div class="spinner-buttons-row">
+                                    <button class="spinner-btn-large" onclick="adjustValue('tickTimeTool', 0.01)">+0.01</button>
+                                    <button class="spinner-btn-large" onclick="adjustValue('tickTimeTool', 0.1)">+0.1</button>
+                                </div>
+                                <div class="spinner-buttons-row">
+                                    <button class="spinner-btn-large" onclick="adjustValue('tickTimeTool', -0.01)">-0.01</button>
+                                    <button class="spinner-btn-large" onclick="adjustValue('tickTimeTool', -0.1)">-0.1</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tool Power Section -->
+                <div class="input-section">
+                    <div class="section-title">🔨 Tool Power</div>
+                    <div class="input-group">
+                        <label class="input-label" for="toolPowerSlider">Tool Power</label>
+                        <div class="slider-container">
+                            <input type="range" id="toolPowerSlider" class="power-slider" min="0" max="28" value="1" step="1">
+                            <div class="slider-value-display">
+                                <span id="sliderValueDisplay">10</span>
+                            </div>
+                        </div>
+                        <input type="number" id="toolPowerManual" class="input-field number-input manual-override" placeholder="Manual override" value="10" step="1" oninput="updateToolFromPower(); calculateTime()">
+                    </div>
+
+                    <div class="tool-selector">
+                        <div class="tool-selector-title">Tool Selection</div>
+                        <div class="dropdown-row">
+                            <div class="dropdown-group">
+                                <label class="dropdown-label">Tier</label>
+                                <select class="dropdown-select" id="toolTier" onchange="updateToolPower(); calculateTime()">
+                                    <option value="0">T0 - Flint</option>
+                                    <option value="1" selected>T1 - Ferralith</option>
+                                    <option value="2">T2 - Pyrelite</option>
+                                    <option value="3">T3 - Emarium</option>
+                                    <option value="4">T4 - Elenvar</option>
+                                    <option value="5">T5 - Luminite</option>
+                                    <option value="6">T6 - Rathium</option>
+                                    <option value="7">T7 - Aurumite</option>
+                                    <option value="8">T8 - Celestium</option>
+                                    <option value="9">T9 - Umbracite</option>
+                                    <option value="10">T10 - Astralite</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="dropdown-row">
+                            <div class="dropdown-group">
+                                <label class="dropdown-label">Rarity</label>
+                                <select class="dropdown-select rarity-dropdown" id="toolRarity" onchange="updateToolPower(); calculateTime()">
+                                    <option value="common" class="rarity-common">Common</option>
+                                    <option value="uncommon" class="rarity-uncommon">Uncommon</option>
+                                    <option value="rare" class="rarity-rare">Rare</option>
+                                    <option value="epic" class="rarity-epic">Epic</option>
+                                    <option value="legendary" class="rarity-legendary">Legendary</option>
+                                    <option value="mythic" class="rarity-mythic">Mythic</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="power-display" id="toolPowerDisplay">
+                            Power: 10 | Time: 1.55s
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stamina & Food Section -->
+                <div class="stamina-section">
+                    <div class="section-title">🔋 Stamina & Food</div>
+                    <div class="input-row">
+                        <div class="input-column">
+                            <div class="input-group">
+                                <label class="input-label" for="maxStamina">Max Stamina</label>
+                                <div class="number-input-container">
+                                    <input type="number" id="maxStamina" class="input-field number-input" value="100" step="1" oninput="updateCurrentStamina(); calculateTime()">
+                                    <div class="spinner-buttons-large">
+                                        <div class="spinner-buttons-row">
+                                            <button class="spinner-btn-large" onclick="adjustValue('maxStamina', 1)">+1</button>
+                                            <button class="spinner-btn-large" onclick="adjustValue('maxStamina', 10)">+10</button>
+                                            <button class="spinner-btn-large" onclick="adjustValue('maxStamina', 100)">+100</button>
+                                        </div>
+                                        <div class="spinner-buttons-row">
+                                            <button class="spinner-btn-large" onclick="adjustValue('maxStamina', -1)">-1</button>
+                                            <button class="spinner-btn-large" onclick="adjustValue('maxStamina', -10)">-10</button>
+                                            <button class="spinner-btn-large" onclick="adjustValue('maxStamina', -100)">-100</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="input-column">
+                            <div class="input-group">
+                                <label class="input-label" for="currentStamina">Current Stamina</label>
+                                <div class="number-input-container">
+                                    <input type="number" id="currentStamina" class="input-field number-input" value="100" step="1">
+                                    <div class="spinner-buttons-large">
+                                        <div class="spinner-buttons-row">
+                                            <button class="spinner-btn-large" onclick="adjustValue('currentStamina', 1)">+1</button>
+                                            <button class="spinner-btn-large" onclick="adjustValue('currentStamina', 10)">+10</button>
+                                            <button class="spinner-btn-large" onclick="adjustValue('currentStamina', 100)">+100</button>
+                                        </div>
+                                        <div class="spinner-buttons-row">
+                                            <button class="spinner-btn-large" onclick="adjustValue('currentStamina', -1)">-1</button>
+                                            <button class="spinner-btn-large" onclick="adjustValue('currentStamina', -10)">-10</button>
+                                            <button class="spinner-btn-large" onclick="adjustValue('currentStamina', -100)">-100</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="food-selector">
+                        <div class="food-selector-title">🍖 Food Buff (30min)</div>
+                        <div class="input-group">
+                            <label class="dropdown-label">Food Type</label>
+                            <select class="dropdown-select" id="foodType" onchange="updateFoodStats(); calculateTime()">
+                                <option value="none">No Food Buff</option>
+                                <option value="plain">T1 - Plain (+7 regen, +8.2% speed)</option>
+                                <option value="savory">T2 - Savory (+9 regen, +8.4% speed)</option>
+                                <option value="zesty">T3 - Zesty (+11 regen, +8.6% speed)</option>
+                                <option value="fine">T4 - Fine (+13 regen, +8.8% speed)</option>
+                                <option value="succulent">T5 - Succulent (+15 regen, +9.0% speed)</option>
+                                <option value="ambrosial">T6 - Ambrosial (+17 regen, +9.2% speed)</option>
+                            </select>
+                        </div>
+                        <div class="food-stats" id="foodStats">
+                            <div class="food-stat-line">
+                                <span>Stamina Regen:</span>
+                                <span id="staminaRegen">0.25/s (base)</span>
+                            </div>
+                            <div class="food-stat-line">
+                                <span>Crafting Speed:</span>
+                                <span id="craftingSpeed">0%</span>
+                            </div>
+                        </div>
+                        <div class="food-disclaimer">
+                            ⚠️ Note: Speed buff does not affect tick time in this calculator
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="button-row">
+                <button class="calculate-btn-full" onclick="calculateTime()">
+                    🕐 Calculate Time
+                </button>
+            </div>
+            
+            <div id="resultContainer" class="result-container">
+                <div class="result-header">📊 Calculation Results</div>
+                
+                <!-- Primary and Secondary Time Display -->
+                <div class="time-display-section">
+                    <div class="result-main-time" id="resultValue">--</div>
+                    <div class="result-secondary-time" id="initialTimeDisplay" style="display: none;">
+                        <span class="secondary-label">Initial time needed:</span>
+                        <span class="secondary-value" id="initialTimeValue">--</span>
+                    </div>
+                </div>
+                
+                <div class="result-sections">
+                    <div class="result-section">
+                        <div class="result-section-title">📋 Task Progress</div>
+                        <div class="result-line">
+                            <span>Remaining Effort:</span>
+                            <span id="remainingEffort">--</span>
+                        </div>
+                        <div class="result-line">
+                            <span>Remaining Ticks:</span>
+                            <span id="remainingTicks">--</span>
+                        </div>
+                        <div class="result-line result-line-large">
+                            <span>Progress:</span>
+                            <span id="progressPercent">--</span>
+                        </div>
+                    </div>
+
+                    <div class="result-section">
+                        <div class="result-section-title">⚡ Performance</div>
+                        <div class="result-line">
+                            <span>Without Breaks:</span>
+                            <span id="totalTimeFromStart">--</span>
+                        </div>
+                        <div class="result-line">
+                            <span>Break Time:</span>
+                            <span id="totalBreakTime">--</span>
+                        </div>
+                        <div class="result-line result-line-large">
+                            <span id="breaksLabel">Breaks Needed:</span>
+                            <span id="breaksNeeded">--</span>
+                        </div>
+                    </div>
+
+                    <div class="result-section">
+                        <div class="result-section-title">🔋 Stamina</div>
+                        <div class="result-line">
+                            <span>Total Stamina Needed:</span>
+                            <span id="staminaUsage">--</span>
+                        </div>
+                        <div class="result-line">
+                            <span>Regen Rate:</span>
+                            <span id="regenRateDisplay">--</span>
+                        </div>
+                        <div class="result-line result-line-large" id="foodNeededLine">
+                            <span>Food Needed:</span>
+                            <span id="foodConsumptions">--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stamina-warning" id="noFoodWarning" style="display: none;">
+                    ⚠️ No food buff active! Consider using food to reduce crafting time and stamina breaks.
+                </div>
+            </div>
+            
+            <div id="errorContainer" style="display: none;"></div>
+        </div>
     </div>
 </body>
 </html>

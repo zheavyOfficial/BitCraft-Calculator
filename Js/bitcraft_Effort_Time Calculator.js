@@ -1,4 +1,4 @@
-// BitCraft Effort Calculator JavaScript
+// BitCraft Effort Calculator JavaScript - Updated
 // Tool power database (exact values from brico.app)
 const toolData = {
     0: { common: 8 },
@@ -26,6 +26,131 @@ const foodData = {
 };
 
 let timeoutId;
+let currentMode = 'crafting'; // 'crafting' or 'gathering'
+let isUpdatingSlider = false; // Guard against recursive updates
+
+// State Persistence Functions - Shared namespace
+function saveState() {
+    try {
+        // Get existing shared state
+        const sharedState = JSON.parse(localStorage.getItem('bcState.v1') || '{}');
+        
+        // Update effort calculator state
+        sharedState.time = {
+            taskEffortTool: document.getElementById('taskEffortTool')?.value || '27000',
+            effortDoneTool: document.getElementById('effortDoneTool')?.value || '0',
+            tickTimeTool: document.getElementById('tickTimeTool')?.value || '1.55',
+            toolTier: document.getElementById('toolTier')?.value || '1',
+            toolRarity: document.getElementById('toolRarity')?.value || 'common',
+            toolPowerSlider: document.getElementById('toolPowerSlider')?.value || '1',
+            toolPowerManual: document.getElementById('toolPowerManual')?.value || '',
+            maxStamina: document.getElementById('maxStamina')?.value || '100',
+            currentStamina: document.getElementById('currentStamina')?.value || '100',
+            foodType: document.getElementById('foodType')?.value || 'none',
+            mode: currentMode
+        };
+        
+        // Save updated shared state
+        localStorage.setItem('bcState.v1', JSON.stringify(sharedState));
+    } catch (error) {
+        console.error('Error saving state:', error);
+    }
+}
+
+function loadState() {
+    try {
+        const sharedState = JSON.parse(localStorage.getItem('bcState.v1') || '{}');
+        const state = sharedState.time;
+        
+        if (state) {
+            // Restore values
+            if (document.getElementById('taskEffortTool')) document.getElementById('taskEffortTool').value = state.taskEffortTool || '27000';
+            if (document.getElementById('effortDoneTool')) document.getElementById('effortDoneTool').value = state.effortDoneTool || '0';
+            if (document.getElementById('tickTimeTool')) document.getElementById('tickTimeTool').value = state.tickTimeTool || '1.55';
+            if (document.getElementById('toolTier')) document.getElementById('toolTier').value = state.toolTier || '1';
+            if (document.getElementById('toolRarity')) document.getElementById('toolRarity').value = state.toolRarity || 'common';
+            if (document.getElementById('toolPowerSlider')) document.getElementById('toolPowerSlider').value = state.toolPowerSlider || '1';
+            if (document.getElementById('toolPowerManual') && state.toolPowerManual) document.getElementById('toolPowerManual').value = state.toolPowerManual;
+            if (document.getElementById('maxStamina')) document.getElementById('maxStamina').value = state.maxStamina || '100';
+            if (document.getElementById('currentStamina')) document.getElementById('currentStamina').value = state.currentStamina || '100';
+            if (document.getElementById('foodType')) document.getElementById('foodType').value = state.foodType || 'none';
+            
+            // Restore mode
+            if (state.mode && state.mode !== currentMode) {
+                setMode(state.mode);
+            }
+        }
+    } catch (error) {
+        console.error('Error loading state:', error);
+    }
+}
+
+function resetToDefaults() {
+    try {
+        // Clear only this page's state from shared storage
+        const sharedState = JSON.parse(localStorage.getItem('bcState.v1') || '{}');
+        delete sharedState.time;
+        localStorage.setItem('bcState.v1', JSON.stringify(sharedState));
+    } catch (error) {
+        console.error('Error clearing page state:', error);
+    }
+    
+    // Reset to default values
+    if (document.getElementById('taskEffortTool')) document.getElementById('taskEffortTool').value = '27000';
+    if (document.getElementById('effortDoneTool')) document.getElementById('effortDoneTool').value = '0';
+    if (document.getElementById('tickTimeTool')) document.getElementById('tickTimeTool').value = '1.55';
+    if (document.getElementById('toolTier')) document.getElementById('toolTier').value = '1';
+    if (document.getElementById('toolRarity')) document.getElementById('toolRarity').value = 'common';
+    if (document.getElementById('maxStamina')) document.getElementById('maxStamina').value = '100';
+    if (document.getElementById('currentStamina')) document.getElementById('currentStamina').value = '100';
+    if (document.getElementById('foodType')) document.getElementById('foodType').value = 'none';
+    
+    setMode('crafting');
+    updateToolPower();
+    updateFoodStats();
+    
+    // Calculate once after reset
+    setTimeout(calculateTime, 100);
+}
+
+// Theme Toggle Function
+function toggleTheme() {
+    const body = document.body;
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = themeToggle.querySelector('.theme-icon');
+    
+    if (body.classList.contains('dark-mode')) {
+        body.classList.remove('dark-mode');
+        body.classList.add('light-mode');
+        themeIcon.textContent = '☀️';
+        localStorage.setItem('theme', 'light');
+    } else {
+        body.classList.remove('light-mode');
+        body.classList.add('dark-mode');
+        themeIcon.textContent = '🌙';
+        localStorage.setItem('theme', 'dark');
+    }
+}
+
+// Mode Toggle Function
+function setMode(mode) {
+    currentMode = mode;
+    const craftingBtn = document.getElementById('craftingMode');
+    const gatheringBtn = document.getElementById('gatheringMode');
+    const effortLabel = document.getElementById('effortLabel');
+    
+    if (mode === 'crafting') {
+        craftingBtn.classList.add('active');
+        gatheringBtn.classList.remove('active');
+        effortLabel.textContent = 'Effort Completed';
+    } else {
+        gatheringBtn.classList.add('active');
+        craftingBtn.classList.remove('active');
+        effortLabel.textContent = 'Effort Remaining';
+    }
+    
+    setTimeout(calculateTime, 100);
+}
 
 function getAllValidToolPowers() {
     const validPowers = new Set();
@@ -35,6 +160,40 @@ function getAllValidToolPowers() {
         }
     }
     return Array.from(validPowers).sort((a, b) => a - b);
+}
+
+function updateFromSlider() {
+    if (isUpdatingSlider) return; // Prevent recursive updates
+    
+    const slider = document.getElementById('toolPowerSlider');
+    const sliderValue = parseInt(slider.value);
+    const validPowers = getAllValidToolPowers();
+    
+    // Guard against invalid slider values
+    if (sliderValue < 0 || sliderValue >= validPowers.length) {
+        console.warn('Invalid slider value:', sliderValue);
+        return;
+    }
+    
+    const actualPower = validPowers[sliderValue];
+    if (!actualPower) {
+        console.warn('No valid power found for slider value:', sliderValue);
+        return;
+    }
+    
+    document.getElementById('sliderValueDisplay').textContent = actualPower;
+    document.getElementById('toolPowerManual').value = actualPower;
+    document.getElementById('toolPowerManual').classList.add('manual-power-input');
+    
+    // Update dropdowns to match closest tool (with guard)
+    isUpdatingSlider = true;
+    const match = findBestMatchingTool(actualPower);
+    if (match && match.power === actualPower) {
+        document.getElementById('toolTier').value = match.tier;
+        document.getElementById('toolRarity').value = match.rarity;
+        document.getElementById('toolPowerDisplay').textContent = `Power: ${actualPower}`;
+    }
+    isUpdatingSlider = false;
 }
 
 function findBestMatchingTool(targetPower) {
@@ -78,7 +237,7 @@ function adjustToolPower(inputId, direction) {
     if (inputId === 'toolPowerManual') {
         updateToolFromPower();
     } else {
-        setTimeout(calculateTime, 100);
+        updateToolPower();
     }
 }
 
@@ -88,12 +247,54 @@ function updateCurrentStamina() {
     setTimeout(calculateTime, 100);
 }
 
+function validateTaskEffort() {
+    const taskEffortInput = document.getElementById('taskEffortTool');
+    const effortCompletedInput = document.getElementById('effortDoneTool');
+    
+    const taskEffort = parseInt(taskEffortInput.value) || 0;
+    const effortCompleted = parseInt(effortCompletedInput.value) || 0;
+    
+    // Ensure effort completed doesn't exceed task effort
+    if (effortCompleted > taskEffort) {
+        effortCompletedInput.value = taskEffort;
+    }
+    
+    setTimeout(calculateTime, 100);
+}
+
+function validateEffortCompleted() {
+    const taskEffortInput = document.getElementById('taskEffortTool');
+    const effortCompletedInput = document.getElementById('effortDoneTool');
+    
+    const taskEffort = parseInt(taskEffortInput.value) || 0;
+    let effortCompleted = parseInt(effortCompletedInput.value) || 0;
+    
+    // Ensure effort completed doesn't exceed task effort
+    if (effortCompleted > taskEffort) {
+        effortCompleted = taskEffort;
+        effortCompletedInput.value = taskEffort;
+    }
+    
+    // Ensure effort completed is non-negative
+    if (effortCompleted < 0) {
+        effortCompletedInput.value = 0;
+    }
+    
+    setTimeout(calculateTime, 100);
+}
+
 function adjustValue(inputId, increment) {
     const input = document.getElementById(inputId);
     const currentValue = parseFloat(input.value) || 0;
     let newValue = currentValue + increment;
     
     if (newValue < 0) newValue = 0;
+    
+    // Special handling for effort values - prevent exceeding task effort
+    if (inputId === 'effortDoneTool') {
+        const taskEffort = parseInt(document.getElementById('taskEffortTool').value) || 0;
+        if (newValue > taskEffort) newValue = taskEffort;
+    }
     
     // Special handling for stamina values
     if (inputId === 'currentStamina') {
@@ -121,6 +322,9 @@ function adjustValue(inputId, increment) {
     } else {
         setTimeout(calculateTime, 100);
     }
+    
+    // Save state after value change
+    saveState();
 }
 
 function updateFoodStats() {
@@ -167,6 +371,8 @@ function updateToolFromPower() {
 }
 
 function updateToolPower() {
+    if (isUpdatingSlider) return; // Prevent recursive updates
+    
     const tier = parseInt(document.getElementById('toolTier').value);
     const raritySelect = document.getElementById('toolRarity');
     const currentRarity = raritySelect.value;
@@ -193,13 +399,40 @@ function updateToolPower() {
     document.getElementById('toolPowerDisplay').textContent = `Power: ${power}`;
     document.getElementById('toolPowerManual').value = power;
     document.getElementById('toolPowerManual').classList.remove('manual-power-input');
-        
+    
+    // Update slider to match the power (with guard)
+    isUpdatingSlider = true;
+    const validPowers = getAllValidToolPowers();
+    const sliderIndex = validPowers.indexOf(power);
+    if (sliderIndex !== -1) {
+        document.getElementById('toolPowerSlider').value = sliderIndex;
+        document.getElementById('sliderValueDisplay').textContent = power;
+    }
+    isUpdatingSlider = false;
+    
     setTimeout(calculateTime, 100);
 }
 
 function calculateTime() {
+    // Always show results container
+    const resultContainer = document.getElementById('resultContainer');
+    if (resultContainer) {
+        resultContainer.classList.add('show');
+    }
+    
     const taskEffort = parseFloat(document.getElementById('taskEffortTool').value);
-    const effortDone = parseFloat(document.getElementById('effortDoneTool').value) || 0;
+    let effortDone = parseFloat(document.getElementById('effortDoneTool').value) || 0;
+    
+    // Adjust for gathering mode
+    if (currentMode === 'gathering') {
+        // In gathering mode, the input is "effort remaining"
+        // Edge case: if effort remaining = 0, treat it as max effort remaining
+        if (effortDone === 0) {
+            effortDone = 0; // No effort done (full task remaining)
+        } else {
+            effortDone = taskEffort - effortDone; // Convert remaining to done
+        }
+    }
     
     const manualPowerInput = document.getElementById('toolPowerManual');
     const manualPower = parseFloat(manualPowerInput.value);
@@ -223,15 +456,15 @@ function calculateTime() {
     const currentStamina = parseInt(document.getElementById('currentStamina').value) || 100;
     const staminaRegen = foodData[foodType].staminaRegen;
     
-    const resultContainer = document.getElementById('resultContainer');
+    const container = document.getElementById('resultContainer');
     const errorContainer = document.getElementById('errorContainer');
-    const calculateBtn = document.querySelector('.calculate-btn');
+    const calculateBtn = document.querySelector('.calculate-btn-full');
     const breaksLabel = document.getElementById('breaksLabel');
     const breaksResult = document.getElementById('breaksNeeded');
     const foodNeededLine = document.getElementById('foodNeededLine');
     const noFoodWarning = document.getElementById('noFoodWarning');
     
-    resultContainer.classList.remove('show');
+    container.classList.remove('show');
     errorContainer.style.display = 'none';
     noFoodWarning.style.display = 'none';
     
@@ -249,12 +482,12 @@ function calculateTime() {
     }
     
     if (effortDone < 0) {
-        showError('Effort done cannot be negative.');
+        showError('Effort values cannot be negative.');
         return;
     }
     
     if (effortDone >= taskEffort) {
-        showError('Effort done cannot be greater than or equal to task effort.');
+        showError('Task is already complete!');
         return;
     }
     
@@ -314,7 +547,7 @@ function calculateTime() {
         foodNeededLine.className = 'result-line result-line-error';
         noFoodWarning.style.display = 'block';
     } else {
-        foodNeededLine.className = 'result-line result-line-error'; // Always red when food is active
+        foodNeededLine.className = 'result-line result-line-error';
     }
     
     const remainingTimeFormatted = formatTime(baseRemainingSeconds);
@@ -322,11 +555,41 @@ function calculateTime() {
     const totalTimeWithBreaksFormatted = formatTime(totalTimeWithBreaks);
     const totalBreakTimeFormatted = formatTime(totalBreakTime);
     
+    // Calculate initial time with breaks (from start)
+    let initialTimeWithBreaks = baseTotalSeconds;
+    let initialBreakTime = 0;
+    let initialBreaksNeeded = 0;
+    
+    if (baseTotalSeconds > maxStamina) {
+        let staminaNeededForFull = baseTotalSeconds;
+        let remainingStaminaForFull = staminaNeededForFull - maxStamina;
+        
+        while (remainingStaminaForFull > 0) {
+            initialBreaksNeeded++;
+            const staminaToRestore = Math.min(maxStamina, remainingStaminaForFull);
+            const breakTime = staminaToRestore / staminaRegen;
+            initialBreakTime += breakTime;
+            initialTimeWithBreaks += breakTime;
+            remainingStaminaForFull -= maxStamina;
+        }
+    }
+    
     // Calculate food consumptions needed (30 min duration each)
     let foodConsumptions = 0;
     if (foodType !== 'none') {
         const totalTimeMinutes = totalTimeWithBreaks / 60;
         foodConsumptions = Math.ceil(totalTimeMinutes / 30);
+    }
+    
+    // Show/hide secondary time display based on progress
+    const initialTimeDisplay = document.getElementById('initialTimeDisplay');
+    const initialTimeValue = document.getElementById('initialTimeValue');
+    
+    if (effortDone > 0) {
+        initialTimeDisplay.style.display = 'block';
+        initialTimeValue.textContent = formatTime(initialTimeWithBreaks);
+    } else {
+        initialTimeDisplay.style.display = 'none';
     }
     
     setTimeout(() => {
@@ -341,7 +604,7 @@ function calculateTime() {
         document.getElementById('regenRateDisplay').textContent = staminaRegen.toFixed(2) + '/s';
         document.getElementById('foodConsumptions').textContent = foodType === 'none' ? 'None' : foodConsumptions + (foodConsumptions === 1 ? ' meal' : ' meals');
         
-        resultContainer.classList.add('show');
+        container.classList.add('show');
     }, 300);
 }
 
@@ -373,7 +636,7 @@ function showError(message) {
     }, 5000);
 }
 
-// Event listeners
+// Event listeners - auto-calculate on input changes
 document.addEventListener('keypress', function(e) {
     if (e.key === 'Enter') {
         calculateTime();
@@ -385,15 +648,96 @@ inputs.forEach(input => {
     input.addEventListener('input', function() {
         clearTimeout(timeoutId);
         timeoutId = setTimeout(() => {
-            if (document.getElementById('taskEffortTool').value) {
-                calculateTime();
-            }
-        }, 500);
+            calculateTime();
+        }, 300);
     });
 });
 
 window.addEventListener('load', function() {
+    // Load saved theme
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    const body = document.body;
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = themeToggle?.querySelector('.theme-icon');
+    
+    if (savedTheme === 'light') {
+        body.classList.remove('dark-mode');
+        body.classList.add('light-mode');
+        if (themeIcon) themeIcon.textContent = '☀️';
+    } else {
+        body.classList.remove('light-mode');
+        body.classList.add('dark-mode');
+        if (themeIcon) themeIcon.textContent = '🌙';
+    }
+    
+    // Initialize slider with correct max value
+    const validPowers = getAllValidToolPowers();
+    const sliderElement = document.getElementById('toolPowerSlider');
+    if (sliderElement && validPowers.length > 0) {
+        sliderElement.max = validPowers.length - 1;
+        const safeIndex = Math.min(1, validPowers.length - 1);
+        sliderElement.value = safeIndex; // Start with safe index
+        document.getElementById('sliderValueDisplay').textContent = validPowers[safeIndex] || validPowers[0];
+    }
+    
+    // Load saved state
+    loadState();
+    
     updateToolPower();
     updateFoodStats();
-    setTimeout(calculateTime, 500);
+    
+    // Run initial calculation to show results immediately
+    setTimeout(calculateTime, 200);
+    
+    // Add event listeners for saving state only (no auto-calculation)
+    const slider = document.getElementById('toolPowerSlider');
+    if (slider) {
+        // Set correct max value based on actual valid powers
+        const validPowers = getAllValidToolPowers();
+        slider.max = validPowers.length - 1;
+        
+        slider.addEventListener('input', function() {
+            updateFromSlider();
+            saveState();
+            setTimeout(calculateTime, 100);
+        });
+    }
+    
+    const tierSelect = document.getElementById('toolTier');
+    if (tierSelect) {
+        tierSelect.addEventListener('change', function() {
+            updateToolPower();
+            saveState();
+            setTimeout(calculateTime, 100);
+        });
+    }
+    
+    const raritySelect = document.getElementById('toolRarity');
+    if (raritySelect) {
+        raritySelect.addEventListener('change', function() {
+            updateToolPower();
+            saveState();
+            setTimeout(calculateTime, 100);
+        });
+    }
+    
+    const foodSelect = document.getElementById('foodType');
+    if (foodSelect) {
+        foodSelect.addEventListener('change', function() {
+            updateFoodStats();
+            saveState();
+            setTimeout(calculateTime, 100);
+        });
+    }
+    
+    // Save state on mode toggle
+    const modeButtons = document.querySelectorAll('.mode-toggle');
+    modeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            setTimeout(() => {
+                saveState();
+                calculateTime();
+            }, 100); // Small delay to let mode change take effect
+        });
+    });
 });

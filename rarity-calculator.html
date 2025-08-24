@@ -5,29 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BitCraft Rarity Calculator</title>
     <link rel="stylesheet" href="css/bitcraft_styles.css">
-    <script src="Js/bitcraft_rarity_calculator.js"></script>
+    <script src="Js\bitcraft_rarity.js"></script>
 </head>
-<body>
-    <!-- Navigation Sidebar -->
-    <div class="nav-sidebar">
-        <div class="nav-header">
-            <span class="nav-title">⚡ TOOLS</span>
+<body class="dark-mode">
+    <!-- Combined Header with Navigation -->
+    <header class="main-header">
+        <div class="header-content">
+            <div class="logo-section">
+                <div class="logo">
+                    <span class="logo-icon">🔨</span>
+                    <span class="logo-sparkle">✨</span>
+                </div>
+                <span class="logo-text">BitCraft Tools</span>
+            </div>
+            
+            <nav class="header-nav">
+                <button class="nav-btn" onclick="window.location.href='index.html'">
+                    <span class="nav-icon">⏱️</span>
+                    <span class="nav-label">Effort Calculator</span>
+                </button>
+                <button class="nav-btn active" onclick="window.location.href='rarity-calculator.html'">
+                    <span class="nav-icon">💎</span>
+                    <span class="nav-label">Rarity Calculator</span>
+                </button>
+                <button class="nav-btn" onclick="window.location.href='materials.html'">
+                    <span class="nav-icon">📦</span>
+                    <span class="nav-label">Tools & Materials</span>
+                </button>
+            </nav>
+            
+            <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+                <span class="theme-icon">🌙</span>
+            </button>
         </div>
-        <button class="nav-btn" onclick="window.location.href='index.html'" title="Effort to Time Calculator">
-            <span class="nav-icon">⏱️</span>
-            <span class="nav-label">Effort</span>
-            <span class="nav-sublabel">Calculator</span>
-            <div class="nav-indicator"></div>
-        </button>
-        <button class="nav-btn active" onclick="window.location.href='rarity-calculator.html'" title="Item Rarity Calculator">
-            <span class="nav-icon">💎</span>
-            <span class="nav-label">Rarity</span>
-            <span class="nav-sublabel">Calculator</span>
-            <div class="nav-indicator"></div>
-        </button>
-    </div>
+    </header>
 
-    <div class="calculator-container">
+    <div class="main-wrapper">
+        <div class="calculator-container">
+            <button class="reset-btn-content" onclick="resetToDefaults()" title="Reset all inputs to default values">
+                🔄 Reset
+            </button>
         <h1 class="title">💎 BitCraft</h1>
         <p class="subtitle">Tool Rarity Calculator</p>
         
@@ -39,34 +56,37 @@
                 <div class="input-group">
                     <label class="input-label" for="tier">Tool Tier</label>
                     <select class="dropdown-select" id="tier" onchange="refreshRarityOptions()">
-                        <option value="2">Tier 2</option>
-                        <option value="3" selected>Tier 3</option>
-                        <option value="4">Tier 4</option>
-                        <option value="5">Tier 5</option>
-                        <option value="6">Tier 6</option>
-                        <option value="7">Tier 7</option>
-                        <option value="8">Tier 8</option>
-                        <option value="9">Tier 9</option>
-                        <option value="10">Tier 10</option>
+                        <option value="2" selected>T2 - Pyrelite</option>
+                        <option value="3">T3 - Emarium</option>
+                        <option value="4">T4 - Elenvar</option>
+                        <option value="5">T5 - Luminite</option>
+                        <option value="6">T6 - Rathium</option>
+                        <option value="7">T7 - Aurumite</option>
+                        <option value="8">T8 - Celestium</option>
+                        <option value="9">T9 - Umbracite</option>
+                        <option value="10">T10 - Astralite</option>
                     </select>
                 </div>
 
                 <div class="input-group">
                     <label class="input-label" for="rarityGoal">Target Rarity</label>
-                    <select class="dropdown-select" id="rarityGoal">
-                        <option value="Uncommon">Uncommon</option>
-                        <option value="Rare">Rare</option>
+                    <select class="dropdown-select rarity-dropdown" id="rarityGoal">
+                        <option value="Uncommon" class="rarity-uncommon">Uncommon</option>
+                        <option value="Rare" class="rarity-rare">Rare</option>
+                        <option value="Epic" class="rarity-epic">Epic</option>
+                        <option value="Legendary" class="rarity-legendary">Legendary</option>
+                        <option value="Mythic" class="rarity-mythic">Mythic</option>
                     </select>
                 </div>
 
                 <div class="info-box">
                     <div class="info-title">📊 Rarity Requirements</div>
                     <div class="info-content">
-                        <div class="info-line">• Uncommon: Tier 2+</div>
-                        <div class="info-line">• Rare: Tier 3+</div>
-                        <div class="info-line">• Epic: Tier 4+</div>
-                        <div class="info-line">• Legendary: Tier 5+</div>
-                        <div class="info-line">• Mythic: Tier 6+</div>
+                        <div class="info-line">• Uncommon: T2+ (Pyrelite+)</div>
+                        <div class="info-line">• Rare: T3+ (Emarium+)</div>
+                        <div class="info-line">• Epic: T4+ (Elenvar+)</div>
+                        <div class="info-line">• Legendary: T5+ (Luminite+)</div>
+                        <div class="info-line">• Mythic: T6+ (Rathium+)</div>
                     </div>
                 </div>
             </div>
@@ -105,9 +125,17 @@
                     <div class="number-input-container">
                         <input type="number" id="customAttempts" class="input-field number-input" 
                                placeholder="Enter number" value="50" min="1" max="10000">
-                        <div class="spinner-buttons">
-                            <div class="spinner-btn up" onclick="adjustValue('customAttempts', 10)">+</div>
-                            <div class="spinner-btn down" onclick="adjustValue('customAttempts', -10)">-</div>
+                        <div class="spinner-buttons-large">
+                            <div class="spinner-buttons-row">
+                                <button class="spinner-btn-large" onclick="adjustValue('customAttempts', 1)">+1</button>
+                                <button class="spinner-btn-large" onclick="adjustValue('customAttempts', 10)">+10</button>
+                                <button class="spinner-btn-large" onclick="adjustValue('customAttempts', 100)">+100</button>
+                            </div>
+                            <div class="spinner-buttons-row">
+                                <button class="spinner-btn-large" onclick="adjustValue('customAttempts', -1)">-1</button>
+                                <button class="spinner-btn-large" onclick="adjustValue('customAttempts', -10)">-10</button>
+                                <button class="spinner-btn-large" onclick="adjustValue('customAttempts', -100)">-100</button>
+                            </div>
                         </div>
                     </div>
                     <div class="custom-result" id="customResult">--</div>
@@ -115,9 +143,6 @@
             </div>
         </div>
         
-        <button class="calculate-btn" onclick="calculateRarity()">
-            💎 Calculate Probabilities
-        </button>
         
         <div id="resultContainer" class="result-container">
             <div class="result-header">📊 Calculation Results</div>
@@ -174,6 +199,7 @@
         </div>
         
         <div id="errorContainer" style="display: none;"></div>
+        </div>
     </div>
 
     <style>
@@ -281,7 +307,7 @@
 
         .attempts-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 8px;
             margin-bottom: 15px;
         }
@@ -324,12 +350,61 @@
         }
 
         /* Rarity color coding */
-        .rarity-common { color: #b0bec5; }
-        .rarity-uncommon { color: #66bb6a; }
-        .rarity-rare { color: #42a5f5; }
-        .rarity-epic { color: #ab47bc; }
-        .rarity-legendary { color: #ffa726; }
-        .rarity-mythic { color: #ef5350; }
+        .rarity-common { color: #D1D5DB; }
+        .rarity-uncommon { color: #1EFF00; }
+        .rarity-rare { color: #0070DD; }
+        .rarity-epic { color: #A335EE; }
+        .rarity-legendary { color: #FF8000; }
+        .rarity-mythic { color: #FF0000; }
+
+        /* Probability Chart Styles */
+        .chart-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+            text-align: center;
+            font-size: 1.1em;
+        }
+
+        .probability-bar {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .bar-label {
+            min-width: 80px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .bar-container {
+            flex: 1;
+            height: 25px;
+            background: var(--section-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            opacity: 0.8;
+            transition: width 0.3s ease;
+        }
+
+        .bar-text {
+            position: absolute;
+            top: 50%;
+            right: 8px;
+            transform: translateY(-50%);
+            font-size: 0.8em;
+            font-weight: bold;
+            color: var(--text-primary);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+        }
     </style>
 </body>
 </html>
