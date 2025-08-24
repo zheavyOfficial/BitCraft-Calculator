@@ -42,103 +42,155 @@
 
     <div class="main-wrapper">
         <div class="calculator-container">
-            <button class="reset-btn-content" onclick="resetToDefaults()" title="Reset all inputs to default values">
-                🔄 Reset
-            </button>
-        <h1 class="title">💎 BitCraft</h1>
+            <div class="action-buttons">
+                <button class="reset-btn-content" onclick="resetToDefaults()" title="Reset all inputs to default values">
+                    🔄 Reset
+                </button>
+            </div>
+            <h1 class="title">💎 BitCraft</h1>
         <p class="subtitle">Tool Rarity Calculator</p>
         
-        <div class="main-input-row">
-            <!-- Tier & Rarity Selection -->
-            <div class="input-section">
-                <div class="section-title">🎯 Target Configuration</div>
+        <!-- Unified Single Row Layout -->
+        <div class="unified-main-row">
+            <!-- Left Side: Tool Configuration -->
+            <div class="input-section tool-config-container">
+                <div class="section-title">⚙️ Tool Configuration</div>
                 
-                <div class="input-group">
-                    <label class="input-label" for="tier">Tool Tier</label>
-                    <select class="dropdown-select" id="tier" onchange="refreshRarityOptions()">
-                        <option value="2" selected>T2 - Pyrelite</option>
-                        <option value="3">T3 - Emarium</option>
-                        <option value="4">T4 - Elenvar</option>
-                        <option value="5">T5 - Luminite</option>
-                        <option value="6">T6 - Rathium</option>
-                        <option value="7">T7 - Aurumite</option>
-                        <option value="8">T8 - Celestium</option>
-                        <option value="9">T9 - Umbracite</option>
-                        <option value="10">T10 - Astralite</option>
-                    </select>
-                </div>
+                <!-- Two Column Config Layout -->
+                <div class="config-two-columns">
+                    <!-- Column A: Starting Point -->
+                    <div class="config-column-a">
+                        <div class="config-subsection-title">📍 Starting Point</div>
+                        <div class="config-subsection-subtitle">What you already have</div>
+                        
+                        <div class="input-group">
+                            <label class="input-label" for="startingTier">Starting Tier</label>
+                            <select class="dropdown-select" id="startingTier" onchange="refreshStartingRarityOptions()" aria-label="Starting tier selection">
+                                <option value="1" selected>T1 - Ferralith</option>
+                                <option value="2">T2 - Pyrelite</option>
+                                <option value="3">T3 - Emarium</option>
+                                <option value="4">T4 - Elenvar</option>
+                                <option value="5">T5 - Luminite</option>
+                                <option value="6">T6 - Rathium</option>
+                                <option value="7">T7 - Aurumite</option>
+                                <option value="8">T8 - Celestium</option>
+                                <option value="9">T9 - Umbracite</option>
+                            </select>
+                        </div>
 
-                <div class="input-group">
-                    <label class="input-label" for="rarityGoal">Target Rarity</label>
-                    <select class="dropdown-select rarity-dropdown" id="rarityGoal">
-                        <option value="Uncommon" class="rarity-uncommon">Uncommon</option>
-                        <option value="Rare" class="rarity-rare">Rare</option>
-                        <option value="Epic" class="rarity-epic">Epic</option>
-                        <option value="Legendary" class="rarity-legendary">Legendary</option>
-                        <option value="Mythic" class="rarity-mythic">Mythic</option>
-                    </select>
-                </div>
-
-                <div class="info-box">
-                    <div class="info-title">📊 Rarity Requirements</div>
-                    <div class="info-content">
-                        <div class="info-line">• Uncommon: T2+ (Pyrelite+)</div>
-                        <div class="info-line">• Rare: T3+ (Emarium+)</div>
-                        <div class="info-line">• Epic: T4+ (Elenvar+)</div>
-                        <div class="info-line">• Legendary: T5+ (Luminite+)</div>
-                        <div class="info-line">• Mythic: T6+ (Rathium+)</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Probability Display -->
-            <div class="input-section">
-                <div class="section-title">🎲 Single Craft Probability</div>
-                
-                <div class="probability-display">
-                    <div class="probability-main">
-                        <span class="probability-label">Chance for</span>
-                        <span class="probability-target" id="targetDisplay">Uncommon at T3</span>
-                    </div>
-                    <div class="probability-value" id="singleChance">--</div>
-                    <div class="probability-subtitle">per crafting attempt</div>
-                </div>
-
-                <div class="distribution-panel">
-                    <div class="distribution-title">Full Distribution at Selected Tier</div>
-                    <div id="distributionBreakdown" class="distribution-breakdown">
-                        <!-- Will be populated by JavaScript -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Multiple Attempts Calculator -->
-            <div class="input-section">
-                <div class="section-title">📈 Multiple Attempts</div>
-                
-                <div class="attempts-grid" id="attemptsGrid">
-                    <!-- Will be populated by JavaScript -->
-                </div>
-
-                <div class="custom-attempts">
-                    <label class="input-label">Custom Number of Tools</label>
-                    <div class="number-input-container">
-                        <input type="number" id="customAttempts" class="input-field number-input" 
-                               placeholder="Enter number" value="50" min="1" max="10000">
-                        <div class="spinner-buttons-large">
-                            <div class="spinner-buttons-row">
-                                <button class="spinner-btn-large" onclick="adjustValue('customAttempts', 1)">+1</button>
-                                <button class="spinner-btn-large" onclick="adjustValue('customAttempts', 10)">+10</button>
-                                <button class="spinner-btn-large" onclick="adjustValue('customAttempts', 100)">+100</button>
-                            </div>
-                            <div class="spinner-buttons-row">
-                                <button class="spinner-btn-large" onclick="adjustValue('customAttempts', -1)">-1</button>
-                                <button class="spinner-btn-large" onclick="adjustValue('customAttempts', -10)">-10</button>
-                                <button class="spinner-btn-large" onclick="adjustValue('customAttempts', -100)">-100</button>
+                        <div class="input-group">
+                            <label class="input-label">Starting Rarity</label>
+                            <div class="rarity-buttons-compact" id="startingRarityButtons">
+                                <button class="rarity-btn-small rarity-common active" data-rarity="Common" onclick="selectStartingRarity('Common')">Common</button>
+                                <button class="rarity-btn-small rarity-uncommon" data-rarity="Uncommon" onclick="selectStartingRarity('Uncommon')">Uncommon</button>
+                                <button class="rarity-btn-small rarity-rare" data-rarity="Rare" onclick="selectStartingRarity('Rare')">Rare</button>
+                                <button class="rarity-btn-small rarity-epic" data-rarity="Epic" onclick="selectStartingRarity('Epic')">Epic</button>
+                                <button class="rarity-btn-small rarity-legendary" data-rarity="Legendary" onclick="selectStartingRarity('Legendary')">Legendary</button>
+                                <button class="rarity-btn-small rarity-mythic" data-rarity="Mythic" onclick="selectStartingRarity('Mythic')">Mythic</button>
                             </div>
                         </div>
                     </div>
-                    <div class="custom-result" id="customResult">--</div>
+
+                    <!-- Column B: Target Configuration -->
+                    <div class="config-column-b">
+                        <div class="config-subsection-title">🎯 Target Configuration</div>
+                        <div class="config-subsection-subtitle">What you want to achieve</div>
+                        
+                        <div class="input-group">
+                            <label class="input-label" for="tier">Target Tier</label>
+                            <select class="dropdown-select" id="tier" onchange="refreshRarityOptions()" aria-label="Target tier selection">
+                                <option value="2" selected>T2 - Pyrelite</option>
+                                <option value="3">T3 - Emarium</option>
+                                <option value="4">T4 - Elenvar</option>
+                                <option value="5">T5 - Luminite</option>
+                                <option value="6">T6 - Rathium</option>
+                                <option value="7">T7 - Aurumite</option>
+                                <option value="8">T8 - Celestium</option>
+                                <option value="9">T9 - Umbracite</option>
+                                <option value="10">T10 - Astralite</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label class="input-label">Target Rarity</label>
+                            <div class="rarity-buttons-compact" id="rarityButtons">
+                                <button class="rarity-btn-small rarity-common" data-rarity="Common" onclick="selectTargetRarity('Common')">Common</button>
+                                <button class="rarity-btn-small rarity-uncommon" data-rarity="Uncommon" onclick="selectTargetRarity('Uncommon')">Uncommon</button>
+                                <button class="rarity-btn-small rarity-rare" data-rarity="Rare" onclick="selectTargetRarity('Rare')">Rare</button>
+                                <button class="rarity-btn-small rarity-epic" data-rarity="Epic" onclick="selectTargetRarity('Epic')">Epic</button>
+                                <button class="rarity-btn-small rarity-legendary" data-rarity="Legendary" onclick="selectTargetRarity('Legendary')">Legendary</button>
+                                <button class="rarity-btn-small rarity-mythic" data-rarity="Mythic" onclick="selectTargetRarity('Mythic')">Mythic</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Minimum Requirements Below (Full Width) -->
+                <div class="requirements-bottom">
+                    <div class="requirements-title">📊 Minimum Rarity Requirements</div>
+                    <div class="tier-requirements-grid-bottom">
+                        <div class="req-item-compact"><span class="tier-badge-sm">T2</span><span class="req-text-sm">Uncommon+</span></div>
+                        <div class="req-item-compact"><span class="tier-badge-sm">T3</span><span class="req-text-sm">Rare+</span></div>
+                        <div class="req-item-compact"><span class="tier-badge-sm">T4</span><span class="req-text-sm">Epic+</span></div>
+                        <div class="req-item-compact"><span class="tier-badge-sm">T5</span><span class="req-text-sm">Legendary+</span></div>
+                        <div class="req-item-compact"><span class="tier-badge-sm">T6</span><span class="req-text-sm">Mythic+</span></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Side: Probability Results -->
+            <div class="input-section probability-results-container">
+                <div class="section-title">🎲 Probability Results</div>
+                
+                <!-- Probability Wrapper for Single Chance + Multiple Attempts -->
+                <div class="probability-wrapper">
+                    <!-- Single Chance with embedded Full Distribution -->
+                    <div class="single-chance-panel">
+                        <div class="probability-display">
+                            <div class="probability-main">
+                                <span class="probability-label">Chance for</span>
+                                <span class="probability-target" id="targetDisplay">Uncommon at T3</span>
+                            </div>
+                            <div class="probability-value" id="singleChance">--</div>
+                            <div class="probability-subtitle">per crafting attempt</div>
+                        </div>
+                        
+                        <!-- Full Distribution Embedded -->
+                        <div class="distribution-embedded">
+                            <div class="distribution-title">Full Distribution at Selected Tier</div>
+                            <div id="distributionBreakdown" class="distribution-breakdown">
+                                <!-- Will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Multiple Attempts -->
+                    <div class="multiple-attempts-panel">
+                        <div class="attempts-panel-title">📈 Multiple Attempts</div>
+                        <div class="attempts-grid" id="attemptsGrid">
+                            <!-- Will be populated by JavaScript -->
+                        </div>
+                        <div class="custom-attempts">
+                            <label class="input-label">Custom Number of Tools</label>
+                            <div class="number-input-container">
+                                <input type="number" id="customAttempts" class="input-field number-input" 
+                                       placeholder="Enter number" value="50" min="1" max="10000">
+                                <div class="spinner-buttons-large">
+                                    <div class="spinner-buttons-row">
+                                        <button class="spinner-btn-large" onclick="adjustValue('customAttempts', 1)">+1</button>
+                                        <button class="spinner-btn-large" onclick="adjustValue('customAttempts', 10)">+10</button>
+                                        <button class="spinner-btn-large" onclick="adjustValue('customAttempts', 100)">+100</button>
+                                    </div>
+                                    <div class="spinner-buttons-row">
+                                        <button class="spinner-btn-large" onclick="adjustValue('customAttempts', -1)">-1</button>
+                                        <button class="spinner-btn-large" onclick="adjustValue('customAttempts', -10)">-10</button>
+                                        <button class="spinner-btn-large" onclick="adjustValue('customAttempts', -100)">-100</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="custom-result" id="customResult">--</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -193,7 +245,7 @@
                 </div>
             </div>
 
-            <div class="probability-chart" id="probabilityChart">
+            <div class="probability-chart" id="probabilityChart" style="display: none;">
                 <!-- Chart will be rendered here -->
             </div>
         </div>
@@ -228,13 +280,135 @@
             margin: 4px 0;
         }
 
+        .info-box.compact {
+            padding: 6px;
+            margin-top: 5px;
+            background: rgba(100, 181, 246, 0.08);
+            border: 1px solid rgba(100, 181, 246, 0.2);
+        }
+
+        .info-title.compact {
+            font-size: 0.8em;
+            margin-bottom: 6px;
+        }
+
+        .tier-requirements-grid.compact {
+            gap: 4px;
+            grid-template-columns: 1fr 1fr 1fr;
+            margin-top: 8px;
+        }
+
+        .req-item-detailed.compact {
+            padding: 3px 5px;
+            font-size: 0.7em;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .req-item-detailed.compact .tier-badge {
+            font-size: 0.6em;
+            padding: 1px 3px;
+            min-width: 18px;
+        }
+
+        .req-item-detailed.compact .req-text {
+            font-size: 0.65em;
+        }
+
+        .info-content-compact {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            font-size: 0.75em;
+        }
+
+        .req-item {
+            background: rgba(100, 181, 246, 0.1);
+            border: 1px solid rgba(100, 181, 246, 0.3);
+            border-radius: 4px;
+            padding: 3px 6px;
+            font-weight: bold;
+            font-size: 0.85em;
+        }
+
+        .tier-requirements-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 5px;
+        }
+
+        .req-item-detailed {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            padding: 6px 8px;
+        }
+
+        .tier-badge {
+            background: var(--accent-primary);
+            color: white;
+            font-size: 0.7em;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 4px;
+            min-width: 24px;
+            text-align: center;
+        }
+
+        .req-text {
+            font-size: 0.8em;
+            font-weight: 600;
+            color: #ffb74d;
+        }
+
+        .distribution-panel {
+            background: rgba(69, 90, 100, 0.2);
+            border: 1px solid rgba(69, 90, 100, 0.4);
+            border-radius: 8px;
+            padding: 8px;
+            margin-top: 10px;
+        }
+
+        .distribution-title {
+            font-size: 0.9em;
+            font-weight: bold;
+            color: #64b5f6;
+            margin-bottom: 8px;
+        }
+
+        .distribution-breakdown {
+            display: grid;
+            gap: 5px;
+        }
+
+        .distribution-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 8px;
+            background: rgba(55, 71, 79, 0.4);
+            border-radius: 4px;
+            font-size: 0.85em;
+        }
+
+        .distribution-rarity {
+            color: #cfd8dc;
+        }
+
+        .distribution-chance {
+            font-weight: bold;
+        }
+
         .probability-display {
             background: linear-gradient(135deg, rgba(156, 39, 176, 0.2), rgba(103, 58, 183, 0.2));
             border: 2px solid rgba(156, 39, 176, 0.4);
             border-radius: 10px;
-            padding: 20px;
+            padding: 15px;
             text-align: center;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
 
         .probability-main {
@@ -268,12 +442,129 @@
             margin-top: 5px;
         }
 
+        .probability-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .probability-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            flex: 1;
+        }
+
+        /* New layout styling */
+        .attempts-main-section {
+            background: rgba(76, 175, 80, 0.05);
+            border: 2px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .attempts-content-main {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .custom-attempts-main {
+            background: rgba(255, 152, 0, 0.1);
+            border: 2px solid rgba(255, 152, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .custom-attempts-header {
+            margin-bottom: 15px;
+        }
+
+        .custom-label-main {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #ffb74d;
+        }
+
+        .custom-attempts-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .spinner-controls {
+            display: flex;
+            gap: 5px;
+        }
+
+        .spinner-btn {
+            padding: 8px 12px;
+            border: 1px solid var(--input-border);
+            background: var(--section-bg);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: bold;
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+            min-width: 45px;
+        }
+
+        .spinner-btn:hover {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .spinner-btn[onclick*="-"] {
+            background: rgba(220, 53, 69, 0.1);
+            border-color: rgba(220, 53, 69, 0.3);
+            color: #dc3545;
+        }
+
+        .spinner-btn[onclick*="-"]:hover {
+            background: #dc3545;
+            border-color: #dc3545;
+            color: white;
+        }
+
+        .custom-input-main {
+            width: 120px;
+            padding: 12px 16px;
+            border: 2px solid var(--input-border);
+            border-radius: 8px;
+            background: var(--input-bg);
+            color: var(--text-primary);
+            font-size: 1.1em;
+            font-weight: bold;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .custom-input-main:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 15px rgba(100, 181, 246, 0.3);
+        }
+
+        .custom-result-main {
+            background: rgba(255, 152, 0, 0.2);
+            border: 1px solid rgba(255, 152, 0, 0.4);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #ffb74d;
+        }
+
         .distribution-panel {
             background: rgba(69, 90, 100, 0.2);
             border: 1px solid rgba(69, 90, 100, 0.4);
             border-radius: 8px;
-            padding: 10px;
-            margin-top: 15px;
+            padding: 8px;
+            margin-top: 10px;
         }
 
         .distribution-title {
@@ -336,7 +627,7 @@
             background: rgba(255, 152, 0, 0.1);
             border: 1px solid rgba(255, 152, 0, 0.3);
             border-radius: 8px;
-            padding: 12px;
+            padding: 10px;
         }
 
         .custom-result {
@@ -349,13 +640,328 @@
             color: #ffb74d;
         }
 
+        /* Rarity button styling */
+        .rarity-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .rarity-btn {
+            padding: 10px 12px;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            background: rgba(55, 71, 79, 0.8);
+            font-weight: bold;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .rarity-btn:hover {
+            background: rgba(55, 71, 79, 1);
+            border-color: currentColor;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .rarity-btn.active {
+            background: rgba(var(--rarity-rgb), 0.2);
+            border-color: currentColor;
+            box-shadow: 0 0 15px rgba(var(--rarity-rgb), 0.4);
+        }
+
         /* Rarity color coding */
-        .rarity-common { color: #D1D5DB; }
-        .rarity-uncommon { color: #1EFF00; }
-        .rarity-rare { color: #0070DD; }
-        .rarity-epic { color: #A335EE; }
-        .rarity-legendary { color: #FF8000; }
-        .rarity-mythic { color: #FF0000; }
+        .rarity-common { 
+            color: #D1D5DB; 
+            --rarity-rgb: 209, 213, 219;
+        }
+        .rarity-uncommon { 
+            color: #1EFF00; 
+            --rarity-rgb: 30, 255, 0;
+        }
+        .rarity-rare { 
+            color: #0070DD; 
+            --rarity-rgb: 0, 112, 221;
+        }
+        .rarity-epic { 
+            color: #A335EE; 
+            --rarity-rgb: 163, 53, 238;
+        }
+        .rarity-legendary { 
+            color: #FF8000; 
+            --rarity-rgb: 255, 128, 0;
+        }
+        .rarity-mythic { 
+            color: #FF0000; 
+            --rarity-rgb: 255, 0, 0;
+        }
+
+        /* Combined configuration section styling */
+        .config-section {
+            flex: 1;
+            background: var(--section-bg);
+            border: 2px solid var(--border-color);
+        }
+
+
+        /* Compact rarity buttons */
+        .rarity-buttons-compact {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .rarity-btn-small {
+            padding: 8px 10px;
+            border: 2px solid transparent;
+            border-radius: 6px;
+            background: rgba(55, 71, 79, 0.8);
+            font-weight: bold;
+            font-size: 0.8em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .rarity-btn-small:hover {
+            background: rgba(55, 71, 79, 1);
+            border-color: currentColor;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .rarity-btn-small.active {
+            background: rgba(var(--rarity-rgb), 0.2);
+            border-color: currentColor;
+            box-shadow: 0 0 15px rgba(var(--rarity-rgb), 0.4);
+        }
+
+        .rarity-btn-small:focus {
+            outline: 2px solid var(--accent-primary);
+            outline-offset: 2px;
+        }
+
+        .dropdown-select:focus {
+            outline: 2px solid var(--accent-primary);
+            outline-offset: 2px;
+        }
+
+        .spinner-btn-large:focus {
+            outline: 2px solid var(--accent-primary);
+            outline-offset: 2px;
+        }
+
+        /* Requirements section */
+        .requirements-section {
+            max-width: 600px;
+            margin: 20px auto;
+        }
+        
+        
+        /* Base layout for single items */
+        .main-input-row {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+
+        /* Three-column config grid for desktop */
+        .config-row {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(280px, 1fr));
+            gap: 18px;
+            align-items: start;
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+        
+        /* Section styling */
+        .input-section {
+            background: var(--section-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 18px;
+            min-width: 0;
+        }
+
+        /* Config column styling */
+        .config-column {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        /* Compact requirements styling */
+        .config-column.requirements-compact {
+            padding: 10px;
+        }
+
+        .config-column.requirements-compact .section-title {
+            font-size: 0.9em;
+            margin-bottom: 8px;
+        }
+
+        /* Results full row - three columns */
+        .results-full-row {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(300px, 1fr));
+            gap: 18px;
+            margin-bottom: 15px;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+
+        .results-column {
+            min-width: 0;
+        }
+        
+        
+        
+        
+        
+        .custom-result {
+            font-size: 0.75em;
+            color: var(--text-secondary);
+            flex: 2;
+        }
+
+        /* Safeguard: hide empty containers */
+        .main-input-row > *:empty { 
+            display: none; 
+        }
+
+        /* Desktop-specific layout - removed phantom grid */
+
+        /* Responsive stacking for tablet and mobile */
+        @media (max-width: 1024px) {
+            .config-row {
+                grid-template-columns: 1fr;
+                gap: 15px;
+                max-width: 600px;
+                padding: 0 15px;
+            }
+            
+            .results-full-row {
+                grid-template-columns: 1fr;
+                gap: 15px;
+                padding: 0 15px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .config-row {
+                padding: 0 10px;
+            }
+            
+            .results-full-row {
+                padding: 0 10px;
+            }
+            
+            .input-section {
+                padding: 15px;
+            }
+        }
+
+        .section-subtitle {
+            font-size: 0.8em;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            font-style: italic;
+        }
+
+        /* Starting point selector styling */
+        .starting-point-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .starting-tier, .starting-rarity {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .sub-label {
+            font-size: 0.85em;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .dropdown-select.small {
+            font-size: 0.9em;
+            padding: 8px 12px;
+        }
+
+        .starting-rarity-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+        }
+
+        .rarity-btn.small {
+            padding: 8px 6px;
+            font-size: 0.7em;
+            border-radius: 6px;
+            border: 2px solid transparent;
+            background: rgba(55, 71, 79, 0.8);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .rarity-btn.small::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 0%, rgba(var(--rarity-rgb), 0.1) 50%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .rarity-btn.small:hover::before {
+            opacity: 1;
+        }
+
+        .rarity-btn.small.active {
+            background: rgba(var(--rarity-rgb), 0.2);
+            border-color: currentColor;
+            box-shadow: 0 0 10px rgba(var(--rarity-rgb), 0.4);
+        }
+
+        .rarity-btn.small:hover:not(.active) {
+            background: rgba(var(--rarity-rgb), 0.1);
+            border-color: currentColor;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        @media (max-width: 768px) {
+            .starting-point-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .starting-rarity-buttons {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+        }
 
         /* Probability Chart Styles */
         .chart-title {

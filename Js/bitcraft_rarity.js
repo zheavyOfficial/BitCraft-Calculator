@@ -33,23 +33,57 @@ const rarityColors = {
 // Global state
 let selectedTier = 2;
 let targetRarity = 'Uncommon';
+let startingTier = 1;
+let startingRarity = 'Common';
+
+// Spinner function for custom attempts - original version
+function adjustValue(inputId, amount) {
+    const input = document.getElementById(inputId);
+    if (!input) {
+        console.warn(`Element with ID '${inputId}' not found`);
+        return;
+    }
+    
+    const currentValue = Number(input.value);
+    const safeCurrentValue = Number.isFinite(currentValue) ? currentValue : 50;
+    const newValue = Math.max(1, Math.min(10000, safeCurrentValue + amount));
+    input.value = newValue;
+    
+    // Trigger calculation update
+    if (typeof updateCustomAttempts === 'function') {
+        updateCustomAttempts();
+    }
+}
 
 // Theme Toggle Function
 function toggleTheme() {
     const body = document.body;
     const themeToggle = document.getElementById('themeToggle');
-    const themeIcon = themeToggle.querySelector('.theme-icon');
+    if (!themeToggle) {
+        console.warn('Theme toggle button not found');
+        return;
+    }
     
-    if (body.classList.contains('dark-mode')) {
-        body.classList.remove('dark-mode');
-        body.classList.add('light-mode');
-        themeIcon.textContent = '☀️';
-        localStorage.setItem('theme', 'light');
-    } else {
-        body.classList.remove('light-mode');
-        body.classList.add('dark-mode');
-        themeIcon.textContent = '🌙';
-        localStorage.setItem('theme', 'dark');
+    const themeIcon = themeToggle.querySelector('.theme-icon');
+    if (!themeIcon) {
+        console.warn('Theme icon not found');
+        return;
+    }
+    
+    try {
+        if (body.classList.contains('dark-mode')) {
+            body.classList.remove('dark-mode');
+            body.classList.add('light-mode');
+            themeIcon.textContent = '☀️';
+            localStorage.setItem('bcState.v1.theme', 'light');
+        } else {
+            body.classList.remove('light-mode');
+            body.classList.add('dark-mode');
+            themeIcon.textContent = '🌙';
+            localStorage.setItem('bcState.v1.theme', 'dark');
+        }
+    } catch (error) {
+        console.error('Error toggling theme:', error);
     }
 }
 
@@ -107,24 +141,33 @@ function calculateRarityProbabilities(tier) {
     };
     
     // Handle special cases
-    if (tier < 2) {
-        probabilities['Common'] = 1.0;
+    if (tier < startingTier) {
+        probabilities[startingRarity] = 1.0;
+        return probabilities;
+    }
+    
+    // If target tier is same as starting tier, return 100% for starting rarity
+    if (tier === startingTier) {
+        probabilities[startingRarity] = 1.0;
         return probabilities;
     }
     
     // Forward probability propagation with tier-by-tier calculation
-    // Start with 100% Common at T1
+    // Start with starting distribution
     let currentDistribution = {
-        'Common': 1.0,
-        'Uncommon': 0.0,
-        'Rare': 0.0,
-        'Epic': 0.0,
-        'Legendary': 0.0,
-        'Mythic': 0.0
+        'Common': 0,
+        'Uncommon': 0,
+        'Rare': 0,
+        'Epic': 0,
+        'Legendary': 0,
+        'Mythic': 0
     };
     
-    // Apply upgrades tier by tier
-    for (let currentTier = 2; currentTier <= tier; currentTier++) {
+    // Set starting point
+    currentDistribution[startingRarity] = 1.0;
+    
+    // Apply upgrades tier by tier starting from the tier after starting tier
+    for (let currentTier = Math.max(startingTier + 1, 2); currentTier <= tier; currentTier++) {
         const newDistribution = { ...currentDistribution };
         
         // T2+: Common → Uncommon (30% chance)
@@ -182,67 +225,187 @@ function calculateExpectedAttempts(singleChance, targetProb) {
     return Math.ceil(Math.log(1 - targetProb) / Math.log(1 - singleChance));
 }
 
+// Handle rarity button selection
+function selectTargetRarity(rarity) {
+    // Check if rarity is available for current tier
+    const maxRarityIndex = getMaxRarityIndexForTier(selectedTier);
+    const rarityIndex = rarityHierarchy.indexOf(rarity);
+    
+    if (rarityIndex > maxRarityIndex) {
+        return; // Rarity not available for this tier
+    }
+    
+    // Update target rarity
+    targetRarity = rarity;
+    
+    // Update button visual states
+    const buttons = document.querySelectorAll('#rarityButtons .rarity-btn-small');
+    buttons.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.rarity === rarity) {
+            btn.classList.add('active');
+        }
+    });
+    
+    // Update display
+    updateProbabilityDisplay();
+    
+    // Save state
+    saveRarityState();
+}
+
+// Handle starting rarity selection
+function selectStartingRarity(rarity) {
+    // Check if rarity is available for starting tier
+    const maxRarityIndex = getMaxRarityIndexForTier(startingTier);
+    const rarityIndex = rarityHierarchy.indexOf(rarity);
+    
+    if (rarityIndex > maxRarityIndex) {
+        return; // Rarity not available for this tier
+    }
+    
+    // Update starting rarity
+    startingRarity = rarity;
+    
+    // Update button visual states
+    const buttons = document.querySelectorAll('#startingRarityButtons .rarity-btn-small');
+    buttons.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.rarity === rarity) {
+            btn.classList.add('active');
+        }
+    });
+    
+    // Update display
+    updateProbabilityDisplay();
+    
+    // Save state
+    saveRarityState();
+}
+
+// Handle starting tier change and update available starting rarities
+function refreshStartingRarityOptions() {
+    const tierSelect = document.getElementById('startingTier');
+    startingTier = parseInt(tierSelect.value);
+    
+    // Update button availability based on starting tier
+    const maxRarityIndex = getMaxRarityIndexForTier(startingTier);
+    const buttons = document.querySelectorAll('#startingRarityButtons .rarity-btn-small');
+    
+    buttons.forEach((button) => {
+        const rarity = button.dataset.rarity;
+        const rarityIndex = rarityHierarchy.indexOf(rarity);
+        
+        // Enable/disable buttons based on tier requirements
+        if (rarityIndex <= maxRarityIndex) {
+            button.disabled = false;
+            button.style.opacity = '1';
+            button.style.cursor = 'pointer';
+        } else {
+            button.disabled = true;
+            button.style.opacity = '0.3';
+            button.style.cursor = 'not-allowed';
+            button.classList.remove('active');
+        }
+    });
+    
+    // Always default to highest valid rarity for the selected starting tier
+    startingRarity = rarityHierarchy[maxRarityIndex];
+    
+    // Update button visual states
+    buttons.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.rarity === startingRarity && !btn.disabled) {
+            btn.classList.add('active');
+        }
+    });
+    
+    // Validate and update target tier options after changing starting tier
+    refreshRarityOptions();
+    
+    // Update display
+    updateProbabilityDisplay();
+    
+    // Save state
+    saveRarityState();
+}
+
 // Initialize UI
 function refreshRarityOptions() {
     const tierSelect = document.getElementById('tier');
-    const raritySelect = document.getElementById('rarityGoal');
     
     selectedTier = parseInt(tierSelect.value);
+    
+    // Validate that target tier is higher than starting tier
+    if (selectedTier <= startingTier) {
+        // Find the next valid tier
+        const nextValidTier = Math.min(startingTier + 1, 10);
+        selectedTier = nextValidTier;
+        tierSelect.value = nextValidTier.toString();
+    }
+    
+    // Update tier options availability
+    const tierOptions = tierSelect.querySelectorAll('option');
+    tierOptions.forEach(option => {
+        const tierValue = parseInt(option.value);
+        if (tierValue <= startingTier) {
+            option.disabled = true;
+            option.style.opacity = '0.5';
+        } else {
+            option.disabled = false;
+            option.style.opacity = '1';
+        }
+    });
     
     // Store current target rarity if it exists
     const currentTargetRarity = targetRarity;
     
-    // Clear rarity options
-    raritySelect.innerHTML = '';
-    
-    // Add available rarities for selected tier
+    // Update button availability based on tier
     const maxRarityIndex = getMaxRarityIndexForTier(selectedTier);
-    const availableRarities = [];
+    const buttons = document.querySelectorAll('#rarityButtons .rarity-btn-small');
     
-    for (let i = 1; i <= maxRarityIndex; i++) {
-        const rarity = rarityHierarchy[i];
-        const option = document.createElement('option');
-        option.value = rarity;
-        option.textContent = rarity;
-        option.className = `rarity-${rarity.toLowerCase()}`;
-        raritySelect.appendChild(option);
-        availableRarities.push(rarity);
-    }
+    buttons.forEach((button, index) => {
+        const rarity = button.dataset.rarity;
+        const rarityIndex = rarityHierarchy.indexOf(rarity);
+        
+        // Enable/disable buttons based on tier requirements
+        if (rarityIndex <= maxRarityIndex) {
+            button.disabled = false;
+            button.style.opacity = '1';
+            button.style.cursor = 'pointer';
+        } else {
+            button.disabled = true;
+            button.style.opacity = '0.3';
+            button.style.cursor = 'not-allowed';
+            button.classList.remove('active');
+        }
+    });
     
-    // Try to restore the previous target rarity, or clamp to valid option
+    // Try to restore the previous target rarity, or default to highest available
+    const availableRarities = rarityHierarchy.slice(0, maxRarityIndex + 1);
     if (currentTargetRarity && availableRarities.includes(currentTargetRarity)) {
-        raritySelect.value = currentTargetRarity;
         targetRarity = currentTargetRarity;
     } else {
-        // Default selection or clamp to available options
-        if (maxRarityIndex >= 2) {
-            const defaultRarity = rarityHierarchy[Math.min(2, maxRarityIndex)]; // Try for Rare
-            raritySelect.value = defaultRarity;
-            targetRarity = defaultRarity;
-        } else {
-            const fallbackRarity = rarityHierarchy[maxRarityIndex];
-            raritySelect.value = fallbackRarity;
-            targetRarity = fallbackRarity;
-        }
+        // Default to highest possible rarity unless user manually changed it
+        targetRarity = rarityHierarchy[maxRarityIndex];
     }
     
+    // Update button visual states
+    buttons.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.rarity === targetRarity && !btn.disabled) {
+            btn.classList.add('active');
+        }
+    });
+    
     // Save the updated state
-    try {
-        const sharedState = JSON.parse(localStorage.getItem('bcState.v1') || '{}');
-        if (!sharedState.rarity) sharedState.rarity = {};
-        sharedState.rarity.tier = selectedTier;
-        sharedState.rarity.targetRarity = targetRarity;
-        sharedState.rarity.customAttempts = document.getElementById('customAttempts')?.value || '50';
-        localStorage.setItem('bcState.v1', JSON.stringify(sharedState));
-    } catch (error) {
-        console.error('Error saving rarity state in refreshRarityOptions:', error);
-    }
+    saveRarityState();
     
     updateProbabilityDisplay();
 }
 
 function getMaxRarityIndexForTier(tier) {
-    if (tier < 2) return 0; // T0/T1 = Common only
+    if (tier === 1) return 0; // T1 = Common only
     if (tier === 2) return 1; // T2 = Uncommon
     if (tier === 3) return 2; // T3 = Rare
     if (tier === 4) return 3; // T4 = Epic
@@ -345,7 +508,7 @@ function updateAttemptsGrid(singleChance) {
         item.className = 'attempt-item';
         item.innerHTML = `
             <div class="attempt-count">${count} attempts</div>
-            <div class="attempt-chance">${(cumulative * 100).toFixed(1)}%</div>
+            <div class="attempt-chance">${(cumulative * 100).toFixed(3)}%</div>
         `;
         attemptsGrid.appendChild(item);
     });
@@ -358,7 +521,7 @@ function updateCustomResult(singleChance) {
     const attempts = parseInt(customInput.value) || 50;
     const cumulative = calculateCumulativeProbability(singleChance, attempts);
     
-    customResult.textContent = `${(cumulative * 100).toFixed(2)}% chance with ${attempts} attempts`;
+    customResult.textContent = `${(cumulative * 100).toFixed(3)}% chance with ${attempts} attempts`;
 }
 
 function adjustValue(inputId, increment) {
@@ -467,13 +630,33 @@ function resetToDefaults() {
     // Reset to default values
     selectedTier = 2;
     targetRarity = 'Uncommon';
+    startingTier = 1;
+    startingRarity = 'Common';
     
     // Reset UI elements
     if (document.getElementById('tier')) document.getElementById('tier').value = '2';
+    if (document.getElementById('startingTier')) document.getElementById('startingTier').value = '1';
     if (document.getElementById('customAttempts')) document.getElementById('customAttempts').value = '50';
     
     // Refresh the rarity options and display
+    refreshStartingRarityOptions();
     refreshRarityOptions();
+}
+
+// Save state function for rarity calculator
+function saveRarityState() {
+    try {
+        const sharedState = JSON.parse(localStorage.getItem('bcState.v1') || '{}');
+        if (!sharedState.rarity) sharedState.rarity = {};
+        sharedState.rarity.tier = selectedTier;
+        sharedState.rarity.targetRarity = targetRarity;
+        sharedState.rarity.startingTier = startingTier;
+        sharedState.rarity.startingRarity = startingRarity;
+        sharedState.rarity.customAttempts = document.getElementById('customAttempts')?.value || '50';
+        localStorage.setItem('bcState.v1', JSON.stringify(sharedState));
+    } catch (error) {
+        console.error('Error saving rarity state:', error);
+    }
 }
 
 // Event listeners
@@ -494,20 +677,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (themeIcon) themeIcon.textContent = '🌙';
     }
     
-    // Save state function for rarity calculator
-    const saveRarityState = () => {
-        try {
-            const sharedState = JSON.parse(localStorage.getItem('bcState.v1') || '{}');
-            sharedState.rarity = {
-                tier: selectedTier,
-                targetRarity: targetRarity,
-                customAttempts: document.getElementById('customAttempts')?.value || '50'
-            };
-            localStorage.setItem('bcState.v1', JSON.stringify(sharedState));
-        } catch (error) {
-            console.error('Error saving rarity state:', error);
-        }
-    };
     
     // Load state function for rarity calculator  
     const loadRarityState = () => {
@@ -518,8 +687,11 @@ document.addEventListener('DOMContentLoaded', function() {
             if (state) {
                 selectedTier = state.tier || 2;
                 targetRarity = state.targetRarity || 'Uncommon';
+                startingTier = state.startingTier || 1;
+                startingRarity = state.startingRarity || 'Common';
                 
                 if (document.getElementById('tier')) document.getElementById('tier').value = selectedTier.toString();
+                if (document.getElementById('startingTier')) document.getElementById('startingTier').value = startingTier.toString();
                 if (document.getElementById('customAttempts')) document.getElementById('customAttempts').value = state.customAttempts || '50';
             }
         } catch (error) {
@@ -536,11 +708,11 @@ document.addEventListener('DOMContentLoaded', function() {
         saveRarityState();
     });
     
-    document.getElementById('rarityGoal')?.addEventListener('change', function() {
-        targetRarity = this.value;
-        updateProbabilityDisplay();
+    document.getElementById('startingTier')?.addEventListener('change', function() {
+        refreshStartingRarityOptions();
         saveRarityState();
     });
+    
     
     document.getElementById('customAttempts')?.addEventListener('input', function() {
         updateCustomResult(calculateRarityProbabilities(selectedTier)[targetRarity]);
@@ -548,5 +720,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Initialize
+    refreshStartingRarityOptions();
     refreshRarityOptions();
 });

@@ -153,6 +153,60 @@ const tierNames = {
 };
 
 
+// Tier colors for material grouping (matching materials page tier cards)
+const tierColors = {
+    0: { bg: 'rgba(255, 255, 255, 0.1)', border: '#e0e0e0', text: '#f5f5f5' },
+    1: { bg: 'rgba(139, 69, 19, 0.2)', border: '#8b4513', text: '#d2691e' },
+    2: { bg: 'rgba(255, 152, 0, 0.2)', border: '#ff9800', text: '#ffab40' },
+    3: { bg: 'rgba(66, 66, 66, 0.2)', border: '#424242', text: '#757575' },
+    4: { bg: 'rgba(33, 150, 243, 0.2)', border: '#2196f3', text: '#64b5f6' },
+    5: { bg: 'rgba(76, 175, 80, 0.2)', border: '#4caf50', text: '#81c784' },
+    6: { bg: 'rgba(244, 67, 54, 0.2)', border: '#f44336', text: '#ef5350' },
+    7: { bg: 'rgba(156, 39, 176, 0.2)', border: '#9c27b0', text: '#ba68c8' },
+    8: { bg: 'rgba(255, 235, 59, 0.2)', border: '#ffeb3b', text: '#fff176' },
+    9: { bg: 'rgba(121, 85, 72, 0.2)', border: '#795548', text: '#a1887f' },
+    10: { bg: 'rgba(255, 255, 255, 0.3)', border: '#ffffff', text: '#ffffff' }
+};
+
+// Function to classify materials by tier
+function getMaterialTier(materialName) {
+    // T0 materials
+    if (['Flint', 'Wood', 'Fiber'].includes(materialName)) return 0;
+    
+    // T1 materials
+    if (materialName.includes('Ferralith') || materialName.includes('Rough')) return 1;
+    
+    // T2 materials 
+    if (materialName.includes('Pyrelite') || materialName.includes('Simple')) return 2;
+    
+    // T3 materials
+    if (materialName.includes('Emarium') || materialName.includes('Sturdy')) return 3;
+    
+    // T4 materials
+    if (materialName.includes('Elenvar') || materialName.includes('Fine')) return 4;
+    
+    // T5 materials
+    if (materialName.includes('Luminite') || materialName.includes('Exquisite')) return 5;
+    
+    // T6 materials
+    if (materialName.includes('Rathium') || materialName.includes('Peerless')) return 6;
+    
+    // T7 materials
+    if (materialName.includes('Aurumite') || materialName.includes('Ornate')) return 7;
+    
+    // T8 materials
+    if (materialName.includes('Celestium') || materialName.includes('Pristine')) return 8;
+    
+    // T9 materials
+    if (materialName.includes('Umbracite') || materialName.includes('Magnificient')) return 9;
+    
+    // T10 materials
+    if (materialName.includes('Astralite') || materialName.includes('Flawless')) return 10;
+    
+    // Default to T0 for unknown materials
+    return 0;
+}
+
 // Base effort values by tier
 const baseEffort = {
     0: 100,
@@ -178,18 +232,31 @@ let showRawMaterials = false;
 function toggleTheme() {
     const body = document.body;
     const themeToggle = document.getElementById('themeToggle');
-    const themeIcon = themeToggle.querySelector('.theme-icon');
+    if (!themeToggle) {
+        console.warn('Theme toggle button not found');
+        return;
+    }
     
-    if (body.classList.contains('dark-mode')) {
-        body.classList.remove('dark-mode');
-        body.classList.add('light-mode');
-        themeIcon.textContent = '☀️';
-        localStorage.setItem('theme', 'light');
-    } else {
-        body.classList.remove('light-mode');
-        body.classList.add('dark-mode');
-        themeIcon.textContent = '🌙';
-        localStorage.setItem('theme', 'dark');
+    const themeIcon = themeToggle.querySelector('.theme-icon');
+    if (!themeIcon) {
+        console.warn('Theme icon not found');
+        return;
+    }
+    
+    try {
+        if (body.classList.contains('dark-mode')) {
+            body.classList.remove('dark-mode');
+            body.classList.add('light-mode');
+            themeIcon.textContent = '☀️';
+            localStorage.setItem('bcState.v1.theme', 'light');
+        } else {
+            body.classList.remove('light-mode');
+            body.classList.add('dark-mode');
+            themeIcon.textContent = '🌙';
+            localStorage.setItem('bcState.v1.theme', 'dark');
+        }
+    } catch (error) {
+        console.error('Error toggling theme:', error);
     }
 }
 
@@ -200,10 +267,18 @@ function selectTier(tier) {
     document.querySelectorAll('.tier-card').forEach(card => {
         card.classList.remove('selected');
     });
+    document.querySelectorAll('.tier-card-compact').forEach(card => {
+        card.classList.remove('selected');
+    });
     
     const selectedCard = document.querySelector(`.tier-card[data-tier="${tier}"]`);
     if (selectedCard) {
         selectedCard.classList.add('selected');
+    }
+    
+    const selectedCompactCard = document.querySelector(`.tier-card-compact[data-tier="${tier}"]`);
+    if (selectedCompactCard) {
+        selectedCompactCard.classList.add('selected');
     }
     
     calculateMaterials();
@@ -225,15 +300,24 @@ function selectTier(tier) {
 
 function adjustQuantity(change) {
     const input = document.getElementById('quantity');
-    let newValue = parseInt(input.value) + change;
+    if (!input) {
+        console.warn('Quantity input not found');
+        return;
+    }
     
-    if (newValue < 1) newValue = 1;
-    if (newValue > 1000) newValue = 1000;
+    const currentValue = Number(input.value);
+    const safeCurrentValue = Number.isFinite(currentValue) ? currentValue : 1;
+    let newValue = safeCurrentValue + change;
+    
+    // Clamp to valid range
+    newValue = Math.max(1, Math.min(1000, newValue));
     
     input.value = newValue;
     quantity = newValue;
     
-    updatePresetButtonStates();
+    if (typeof updatePresetButtonStates === 'function') {
+        updatePresetButtonStates();
+    }
     
     if (selectedTier !== null) {
         calculateMaterials();
@@ -397,34 +481,61 @@ function calculateMaterials() {
     document.getElementById('selectedTool').textContent = materialTypeText;
     document.getElementById('selectedQuantity').textContent = `×${quantity}`;
     
-    // Build materials grid
+    // Build materials grid grouped by tier in compact boxes with multiple columns
     let materialsHTML = '';
     
-    // Sort materials for better organization (raw materials first, then alphabetically)
-    const sortedMaterials = Object.entries(finalMaterials).sort(([a], [b]) => {
-        const rawMaterials = ['Flint', 'Wood', 'Fiber', 'Hide', 'Coal'];
-        const orePattern = /Ore$/;
-        
-        const aIsRaw = rawMaterials.includes(a) || orePattern.test(a);
-        const bIsRaw = rawMaterials.includes(b) || orePattern.test(b);
-        
-        if (aIsRaw && !bIsRaw) return -1;
-        if (!aIsRaw && bIsRaw) return 1;
-        return a.localeCompare(b);
+    // Group materials by tier
+    const materialsByTier = {};
+    Object.entries(finalMaterials).forEach(([material, amount]) => {
+        const tier = getMaterialTier(material);
+        if (!materialsByTier[tier]) {
+            materialsByTier[tier] = [];
+        }
+        materialsByTier[tier].push([material, amount]);
     });
     
-    for (const [material, amount] of sortedMaterials) {
-        const icon = materialIcons[material] || '📦';
+    // Sort tiers and materials within each tier
+    const sortedTiers = Object.keys(materialsByTier).sort((a, b) => parseInt(a) - parseInt(b));
+    
+    for (const tierStr of sortedTiers) {
+        const tier = parseInt(tierStr);
+        const materials = materialsByTier[tier];
+        const colors = tierColors[tier];
         
+        // Sort materials within tier alphabetically
+        materials.sort(([a], [b]) => a.localeCompare(b));
+        
+        // Create compact tier box
+        materialsHTML += `<div class="tier-box-compact">`;
+        
+        // Add tier header
         materialsHTML += `
-            <div class="material-item">
-                <div class="material-name">
-                    <span class="material-icon">${icon}</span>
-                    <span>${material}</span>
-                </div>
-                <div class="material-amount">${amount.toLocaleString()}</div>
+            <div class="tier-box-header" style="background: ${colors.bg}; border-bottom: 2px solid ${colors.border}; color: ${colors.text};">
+                <span class="tier-box-title">T${tier} - ${tierNames[tier] || 'Unknown'}</span>
+                <span class="tier-box-count">${materials.length} item${materials.length !== 1 ? 's' : ''}</span>
             </div>
         `;
+        
+        // Create materials grid within the tier box
+        materialsHTML += `<div class="tier-materials-grid">`;
+        
+        // Add materials for this tier in grid layout
+        for (const [material, amount] of materials) {
+            const icon = materialIcons[material] || '📦';
+            
+            materialsHTML += `
+                <div class="material-item-compact tier-${tier}" style="border-left: 3px solid ${colors.border};">
+                    <div class="material-header-compact">
+                        <span class="material-icon-compact">${icon}</span>
+                        <span class="material-amount-compact" style="color: ${colors.text};">${amount.toLocaleString()}</span>
+                    </div>
+                    <div class="material-name-compact" style="color: ${colors.text};">${material}</div>
+                </div>
+            `;
+        }
+        
+        materialsHTML += `</div>`; // Close materials grid
+        materialsHTML += `</div>`; // Close tier box
     }
     
     document.getElementById('materialsGrid').innerHTML = materialsHTML;

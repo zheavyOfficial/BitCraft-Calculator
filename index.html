@@ -42,9 +42,14 @@
 
     <div class="main-wrapper">
         <div class="calculator-container">
-            <button class="reset-btn-content" onclick="resetToDefaults()" title="Reset all inputs to default values">
-                🔄 Reset
-            </button>
+            <div class="action-buttons">
+                <button class="calculate-btn-compact" onclick="calculateTime()" title="Calculate time" style="display: none;">
+                    🕐 Calculate
+                </button>
+                <button class="reset-btn-content" onclick="resetToDefaults()" title="Reset all inputs to default values">
+                    🔄 Reset
+                </button>
+            </div>
             <h1 class="title">⚒️ BitCraft</h1>
             <p class="subtitle">Effort → Time Calculator</p>
             
@@ -68,7 +73,7 @@
                     <div class="input-group">
                         <label class="input-label" for="taskEffortTool">Task Effort Required</label>
                         <div class="number-input-container">
-                            <input type="number" id="taskEffortTool" class="input-field number-input" placeholder="e.g., 27000" value="27000" step="1" oninput="validateTaskEffort(); calculateTime()">
+                            <input type="number" id="taskEffortTool" class="input-field number-input" placeholder="e.g., 10000" value="10000" step="1" oninput="validateTaskEffort(); calculateTime()">
                             <div class="spinner-buttons-large">
                                 <div class="spinner-buttons-row">
                                     <button class="spinner-btn-large" onclick="adjustValue('taskEffortTool', 10)">+10</button>
@@ -114,7 +119,7 @@
                     <div class="input-group">
                         <label class="input-label" for="tickTimeTool">Time per Tick (seconds)</label>
                         <div class="number-input-container">
-                            <input type="number" id="tickTimeTool" class="input-field number-input" placeholder="e.g., 1.26" value="1.55" step="0.01" oninput="calculateTime()">
+                            <input type="number" id="tickTimeTool" class="input-field number-input" placeholder="e.g., 1.6" value="1.6" step="0.01" oninput="calculateTime()">
                             <div class="spinner-buttons-large">
                                 <div class="spinner-buttons-row">
                                     <button class="spinner-btn-large" onclick="adjustValue('tickTimeTool', 0.01)">+0.01</button>
@@ -259,11 +264,6 @@
                 </div>
             </div>
             
-            <div class="button-row">
-                <button class="calculate-btn-full" onclick="calculateTime()">
-                    🕐 Calculate Time
-                </button>
-            </div>
             
             <div id="resultContainer" class="result-container">
                 <div class="result-header">📊 Calculation Results</div>

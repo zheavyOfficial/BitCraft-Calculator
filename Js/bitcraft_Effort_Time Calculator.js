@@ -37,9 +37,9 @@ function saveState() {
         
         // Update effort calculator state
         sharedState.time = {
-            taskEffortTool: document.getElementById('taskEffortTool')?.value || '27000',
+            taskEffortTool: document.getElementById('taskEffortTool')?.value || '10000',
             effortDoneTool: document.getElementById('effortDoneTool')?.value || '0',
-            tickTimeTool: document.getElementById('tickTimeTool')?.value || '1.55',
+            tickTimeTool: document.getElementById('tickTimeTool')?.value || '1.6',
             toolTier: document.getElementById('toolTier')?.value || '1',
             toolRarity: document.getElementById('toolRarity')?.value || 'common',
             toolPowerSlider: document.getElementById('toolPowerSlider')?.value || '1',
@@ -64,9 +64,9 @@ function loadState() {
         
         if (state) {
             // Restore values
-            if (document.getElementById('taskEffortTool')) document.getElementById('taskEffortTool').value = state.taskEffortTool || '27000';
+            if (document.getElementById('taskEffortTool')) document.getElementById('taskEffortTool').value = state.taskEffortTool || '10000';
             if (document.getElementById('effortDoneTool')) document.getElementById('effortDoneTool').value = state.effortDoneTool || '0';
-            if (document.getElementById('tickTimeTool')) document.getElementById('tickTimeTool').value = state.tickTimeTool || '1.55';
+            if (document.getElementById('tickTimeTool')) document.getElementById('tickTimeTool').value = state.tickTimeTool || '1.6';
             if (document.getElementById('toolTier')) document.getElementById('toolTier').value = state.toolTier || '1';
             if (document.getElementById('toolRarity')) document.getElementById('toolRarity').value = state.toolRarity || 'common';
             if (document.getElementById('toolPowerSlider')) document.getElementById('toolPowerSlider').value = state.toolPowerSlider || '1';
@@ -96,9 +96,9 @@ function resetToDefaults() {
     }
     
     // Reset to default values
-    if (document.getElementById('taskEffortTool')) document.getElementById('taskEffortTool').value = '27000';
+    if (document.getElementById('taskEffortTool')) document.getElementById('taskEffortTool').value = '10000';
     if (document.getElementById('effortDoneTool')) document.getElementById('effortDoneTool').value = '0';
-    if (document.getElementById('tickTimeTool')) document.getElementById('tickTimeTool').value = '1.55';
+    if (document.getElementById('tickTimeTool')) document.getElementById('tickTimeTool').value = '1.6';
     if (document.getElementById('toolTier')) document.getElementById('toolTier').value = '1';
     if (document.getElementById('toolRarity')) document.getElementById('toolRarity').value = 'common';
     if (document.getElementById('maxStamina')) document.getElementById('maxStamina').value = '100';
@@ -117,18 +117,31 @@ function resetToDefaults() {
 function toggleTheme() {
     const body = document.body;
     const themeToggle = document.getElementById('themeToggle');
-    const themeIcon = themeToggle.querySelector('.theme-icon');
+    if (!themeToggle) {
+        console.warn('Theme toggle button not found');
+        return;
+    }
     
-    if (body.classList.contains('dark-mode')) {
-        body.classList.remove('dark-mode');
-        body.classList.add('light-mode');
-        themeIcon.textContent = '☀️';
-        localStorage.setItem('theme', 'light');
-    } else {
-        body.classList.remove('light-mode');
-        body.classList.add('dark-mode');
-        themeIcon.textContent = '🌙';
-        localStorage.setItem('theme', 'dark');
+    const themeIcon = themeToggle.querySelector('.theme-icon');
+    if (!themeIcon) {
+        console.warn('Theme icon not found');
+        return;
+    }
+    
+    try {
+        if (body.classList.contains('dark-mode')) {
+            body.classList.remove('dark-mode');
+            body.classList.add('light-mode');
+            themeIcon.textContent = '☀️';
+            localStorage.setItem('bcState.v1.theme', 'light');
+        } else {
+            body.classList.remove('light-mode');
+            body.classList.add('dark-mode');
+            themeIcon.textContent = '🌙';
+            localStorage.setItem('bcState.v1.theme', 'dark');
+        }
+    } catch (error) {
+        console.error('Error toggling theme:', error);
     }
 }
 
@@ -458,7 +471,7 @@ function calculateTime() {
     
     const container = document.getElementById('resultContainer');
     const errorContainer = document.getElementById('errorContainer');
-    const calculateBtn = document.querySelector('.calculate-btn-full');
+    const calculateBtn = document.querySelector('.calculate-btn-compact');
     const breaksLabel = document.getElementById('breaksLabel');
     const breaksResult = document.getElementById('breaksNeeded');
     const foodNeededLine = document.getElementById('foodNeededLine');

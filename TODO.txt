@@ -1,0 +1,12 @@
+**Effort → Time**
+
+
+**Rarity Calculator**
+    fix the layout to be 1 full row for everything
+    
+
+**Tools & Materials**
+    required materials, make the tiers into small columns instead of rows
+    compress the results of each tier into 1 list insted of nested divs
+
+**All**
