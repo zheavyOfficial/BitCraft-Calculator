@@ -2,8 +2,15 @@
 
 
 **Rarity Calculator**
-    fix the layout to be 1 full row for everything
-    
+    remove t10 from starting tier as its the max tier
+    whenever selecting another tier in the drop down of starting tier, making the starting rarity of highest within that by default
+
+    fix the layout to be 1 full row for everything:
+        here's how i want the layout to be, 1 div that combines starting point / target config in 2 columns and minimum requirement within that div below Them
+        put full distribution same as it was before inside single chance
+        put single and multiple chances within 1 wrapper div for Them
+        put the tools box and probablity box on 1 row, it should have the whole layout on 1 row as it is
+        when finishing all of this, allow me to revert back if i dont like it with a prompt
 
 **Tools & Materials**
     required materials, make the tiers into small columns instead of rows
