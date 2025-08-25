@@ -494,11 +494,11 @@ function calculateMaterials() {
             
             materialsHTML += `
                 <div class="material-item-compact tier-${tier}" style="border-left: 3px solid ${colors.border};">
-                    <div class="material-header-compact">
+                    <div class="material-left-compact">
                         <span class="material-icon-compact">${icon}</span>
-                        <span class="material-amount-compact" style="color: ${colors.text};">${amount.toLocaleString()}</span>
+                        <span class="material-name-compact" style="color: ${colors.text};">${material}</span>
                     </div>
-                    <div class="material-name-compact" style="color: ${colors.text};">${material}</div>
+                    <span class="material-amount-compact" style="color: ${colors.text};">${amount.toLocaleString()}</span>
                 </div>
             `;
         }

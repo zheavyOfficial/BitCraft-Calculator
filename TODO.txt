@@ -5,12 +5,6 @@
 
 
 **Tools & Materials**
-    required materials, make the tiers into small columns instead of rows
-    compress the results of each tier into 1 list insted of nested divs
+
 
 **All**
-make the logo placement static on all pages on the far left of page
-and the light/dark mode toggle on the far right
-make sure it's all responsive on mobile view
-make the menu page buttons on mobile aligned to center and not clipping with the logo or the light/darkmode toggle and the rest of the page below
-feel free to reduce the size of the buttons themselves slightly, they need always be on 1 row

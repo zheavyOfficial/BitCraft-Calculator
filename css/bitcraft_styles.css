@@ -235,85 +235,98 @@ body {
 /* Mobile responsive layout */
 @media (max-width: 900px) {
     body {
-        padding-top: 80px;
+        padding-top: 120px;
     }
     
     .main-header {
         height: auto;
-        min-height: 70px;
+        min-height: 100px;
     }
     
     .header-content {
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: space-between;
+        display: grid;
+        grid-template-areas: 
+            "logo toggle"
+            "nav nav";
+        grid-template-columns: 1fr auto;
+        gap: 15px 0;
+        padding: 15px;
         align-items: center;
-        gap: 10px;
-        padding: 10px 15px;
     }
     
-    /* Mobile: logo stays far left (row 1) */
+    /* Mobile: logo fixed to far left */
     .logo-section {
-        order: 1;
-        flex-shrink: 0;
+        grid-area: logo;
+        justify-self: start;
+        margin-left: 5px;
     }
     
-    /* Mobile: theme toggle stays far right (row 1) */
+    /* Mobile: theme toggle fixed to far right */
     .theme-toggle {
-        order: 2;
+        grid-area: toggle;
+        justify-self: end;
         width: 36px;
         height: 36px;
         font-size: 1.0em;
-        flex-shrink: 0;
+        margin-right: 5px;
     }
     
-    /* Mobile: navigation centered on new line (row 2) */
+    /* Mobile: navigation centered on row 2 */
     .header-nav {
-        order: 3;
-        width: 100%;
+        grid-area: nav;
+        justify-self: center;
+        display: flex;
         justify-content: center;
         gap: 6px;
-        margin-top: 8px;
         flex-wrap: nowrap;
+        width: 100%;
+        max-width: 400px;
     }
 }
     
 /* Mobile nav button styles */
 @media (max-width: 900px) {
     .nav-btn {
-        padding: 8px 10px;
+        padding: 8px 8px;
         font-size: 0.8em;
         min-width: 0;
         flex: 1 1 auto;
         gap: 4px;
         border-radius: 6px;
-        max-width: 120px;
-        min-height: 40px; /* Ensure 40px touch target */
+        max-width: 110px;
+        min-height: 40px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
     }
     
     .nav-icon {
-        font-size: 0.95em;
+        font-size: 1.1em;
+        margin-bottom: 2px;
     }
     
     .nav-label {
-        font-size: 0.75em;
+        font-size: 0.7em;
         font-weight: 600;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        line-height: 1.1;
+        text-align: center;
     }
 }
 
 /* Tablet adjustments */
 @media (max-width: 768px) {
     .nav-btn {
-        padding: 7px 8px;
+        padding: 7px 6px;
         font-size: 0.75em;
-        max-width: 105px;
+        max-width: 100px;
     }
     
     .nav-label {
-        font-size: 0.7em;
+        font-size: 0.65em;
     }
     
     .header-nav {
@@ -324,24 +337,23 @@ body {
 /* Small mobile adjustments */
 @media (max-width: 480px) {
     .nav-btn {
-        padding: 6px 6px;
+        padding: 6px 5px;
         font-size: 0.7em;
-        max-width: 95px;
-        min-height: 42px; /* Slightly larger touch target */
+        max-width: 90px;
+        min-height: 42px;
     }
     
     .nav-label {
-        font-size: 0.65em;
-        line-height: 1.1;
+        font-size: 0.6em;
+        line-height: 1.0;
     }
     
     .nav-icon {
-        font-size: 0.9em;
+        font-size: 1.0em;
     }
     
     .header-nav {
         gap: 4px;
-        margin-top: 6px;
     }
 }
 
@@ -358,6 +370,7 @@ body {
     gap: 8px;
     font-size: 0.95em;
     font-weight: 600;
+    min-width: 0;
 }
 
 .nav-btn:hover {
@@ -439,6 +452,16 @@ body {
     display: flex;
     align-items: center;
     gap: 5px;
+}
+
+/* Mobile reset button styling */
+@media (max-width: 768px) {
+    .reset-btn-content, .calculate-btn-compact {
+        padding: 6px 10px;
+        font-size: 0.75em;
+        border-radius: 6px;
+        gap: 3px;
+    }
 }
 
 .calculate-btn-compact {
@@ -560,7 +583,7 @@ body {
     border-radius: 10px;
     padding: 14px;
     flex: 1;
-    min-width: 300px;
+    min-width: 0;
 }
 
 .section-title {
@@ -676,10 +699,11 @@ body {
     transition: all 0.2s ease;
     user-select: none;
     min-width: 40px;
-    height: 30px;
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
+    min-height: 40px; /* Ensure accessible touch target */
 }
 
 .spinner-btn-large:hover {
@@ -1425,6 +1449,7 @@ body {
     transition: all 0.3s ease;
     min-width: 50px;
     text-align: center;
+    flex-shrink: 0;
 }
 
 .preset-btn:hover {
@@ -1468,25 +1493,7 @@ body {
 
 @media (max-width: 900px) {
     body {
-        padding-top: 120px;
-    }
-    
-    .main-header {
-        height: auto;
-        min-height: 70px;
-    }
-    
-    .header-content {
-        flex-direction: column;
-        gap: 10px;
-        padding: 10px 20px;
-    }
-    
-    .header-nav {
-        width: 100%;
-        max-width: none;
-        flex-wrap: wrap;
-        justify-content: center;
+        padding-top: 130px;
     }
     
     .main-input-row {
@@ -1571,6 +1578,14 @@ body {
     .tier-quantity-row {
         flex-direction: column;
         gap: 15px;
+        align-items: center;
+    }
+    
+    .tier-selection-section,
+    .quantity-section {
+        max-width: 100%;
+        min-width: 0;
+        width: 100%;
     }
     
     .tier-grid-compact {
