@@ -55,37 +55,6 @@ function adjustValue(inputId, amount) {
     }
 }
 
-// Theme Toggle Function
-function toggleTheme() {
-    const body = document.body;
-    const themeToggle = document.getElementById('themeToggle');
-    if (!themeToggle) {
-        console.warn('Theme toggle button not found');
-        return;
-    }
-    
-    const themeIcon = themeToggle.querySelector('.theme-icon');
-    if (!themeIcon) {
-        console.warn('Theme icon not found');
-        return;
-    }
-    
-    try {
-        if (body.classList.contains('dark-mode')) {
-            body.classList.remove('dark-mode');
-            body.classList.add('light-mode');
-            themeIcon.textContent = '☀️';
-            localStorage.setItem('bcState.v1.theme', 'light');
-        } else {
-            body.classList.remove('light-mode');
-            body.classList.add('dark-mode');
-            themeIcon.textContent = '🌙';
-            localStorage.setItem('bcState.v1.theme', 'dark');
-        }
-    } catch (error) {
-        console.error('Error toggling theme:', error);
-    }
-}
 
 // Validation function for probability anchor tests
 function validateProbabilityAnchors(probabilities, tier) {
@@ -662,21 +631,6 @@ function saveRarityState() {
 
 // Event listeners
 document.addEventListener('DOMContentLoaded', function() {
-    // Load saved theme
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    const body = document.body;
-    const themeToggle = document.getElementById('themeToggle');
-    const themeIcon = themeToggle?.querySelector('.theme-icon');
-    
-    if (savedTheme === 'light') {
-        body.classList.remove('dark-mode');
-        body.classList.add('light-mode');
-        if (themeIcon) themeIcon.textContent = '☀️';
-    } else {
-        body.classList.remove('light-mode');
-        body.classList.add('dark-mode');
-        if (themeIcon) themeIcon.textContent = '🌙';
-    }
     
     
     // Load state function for rarity calculator  

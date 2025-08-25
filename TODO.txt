@@ -9,49 +9,8 @@
     compress the results of each tier into 1 list insted of nested divs
 
 **All**
-
-
-
-Update the Rarity Calculator (vanilla HTML/CSS/JS) with the changes below. Do not alter probability math or existing UX flows unless a bug is found. Keep localStorage keys intact.
-
-Files in scope: rarity-calculator.html, bitcraft_rarity.js, bitcraft_styles.css.
-
-Note: **Change 1 is already completed**; do not modify it. Implement Changes **2–5** below, plus the additional responsive updates at the end.
-
-Changes:
-1) Starting Tier rules (ALREADY DONE — DO NOT CHANGE)
-   - Remove T10 from the “Starting Tier” dropdown (T10 is max; cannot be a starting tier).
-   - On change of “Starting Tier”, default the “Starting Rarity” to the highest valid rarity for that tier (per current rules). This defaulting affects only the starting rarity control and must not auto-change the target rarity.
-
-2) Unified, single-row layout (desktop)
-   - Build one parent row that fits the entire top UI on a single line (no large empty gaps; fix any stray padding/margin or invisible grid columns causing whitespace).
-   - Left side: a single “Tool Configuration” container that has two columns inside it:
-       • Column A: “Starting Point” (Starting Tier + Starting Rarity)
-       • Column B: “Target Configuration” (Target Tier + Target Rarity)
-     Inside this same container, place “Minimum Rarity Requirements” BELOW those two columns (spanning full width of the container). Ensure compact spacing.
-   - Right side: “Probability Results”. Keep “Single Chance” and “Full Distribution” grouped together as before, but:
-       • Embed the “Full Distribution” inside the “Single Chance” panel (as a sub-section), exactly as it was previously styled/structured.
-       • Place “Single Chance” and “Multiple Attempts” inside one wrapper so they’re treated as a single block within “Probability Results”.
-   - Ensure the “Tool Configuration” block and the “Probability Results” block appear on the same row at desktop widths by tightening widths, gaps, and grid definitions. No empty grid cell should reserve space.
-
-3) Probability/attempts panels
-   - “Single Chance” panel: main label and percentage centered vertically with compact spacing. “Full Distribution” sits below in the same card.
-   - “Multiple Attempts” panel stays in the same wrapper as “Single Chance” (to the right group), not a third column.
-
-4) Styling & responsiveness
-   - Fix any CSS causing an “empty grid next to the tool config” or excessive padding/margins that create unused space.
-   - Ensure all boxes in the top row align in height where reasonable; use grid/flex with `min-width: 0` to avoid overflow and maintain one-row layout on desktop. Wrap to stacked layout on small screens only per existing breakpoints.
-
-5) - Custom Number of Tools result should be in green matching the multiple attempts result
-
-6) Revert safety
-   - Behind a small, single boolean flag or via a confirm prompt, allow quick revert to the previous layout if requested (no state loss).
-
-Additional responsive updates (global and Tools & Materials):
-- Header (all pages): make the header fully responsive and reduce menu button size (padding/font) so they fit on tablet/mobile; keep nav centered on desktop, logo/name on the left, and the light/dark toggle pinned to the far right; ensure no overflow/horizontal scroll.
-- Tools & Materials page: fix mobile responsiveness for the “Qty to Craft” box so it doesn’t overflow or break layout; allow preset buttons to wrap neatly and keep inputs/buttons readable and tappable on small screens.
-
-Deliverables:
-- Updated HTML/CSS/JS implementing the layout and behaviors above.
-- Zero console errors. No duplicate IDs or hidden empty grid columns.
-- Brief note of what changed and where, plus a simple toggle or prompt to revert the layout.
+make the logo placement static on all pages on the far left of page
+and the light/dark mode toggle on the far right
+make sure it's all responsive on mobile view
+make the menu page buttons on mobile aligned to center and not clipping with the logo or the light/darkmode toggle and the rest of the page below
+feel free to reduce the size of the buttons themselves slightly, they need always be on 1 row
