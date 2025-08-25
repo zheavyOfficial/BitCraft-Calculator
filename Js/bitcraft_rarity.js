@@ -521,7 +521,8 @@ function updateCustomResult(singleChance) {
     const attempts = parseInt(customInput.value) || 50;
     const cumulative = calculateCumulativeProbability(singleChance, attempts);
     
-    customResult.textContent = `${(cumulative * 100).toFixed(3)}% chance with ${attempts} attempts`;
+    const percentage = (cumulative * 100).toFixed(3);
+    customResult.innerHTML = `<span class="custom-percent">${percentage}%</span> chance with ${attempts} attempts`;
 }
 
 function adjustValue(inputId, increment) {
