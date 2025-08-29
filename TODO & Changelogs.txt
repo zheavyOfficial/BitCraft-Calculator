@@ -1,0 +1,50 @@
+TODO:
+    **Effort → Time**
+        add XP per ticks and XP Caculations
+        reorganize the result calculations and change the background color of the result to blend better with the theme
+
+
+    **Rarity Calculator**
+
+
+    **Tools & Materials**
+    Change raw material to show all crafted materials and add another for raw material that can only be enabled if the other toggle is down. Add the data for it
+
+    **All**
+
+
+
+
+
+
+
+Changelogs:
+### Version 1.0.3 - In Development
+- 
+
+### Version 1.0.2 - 29-09-2025
+- Major effort calculator overhaul with crafting/gathering modes
+- Added Job Tier system with stamina drain multipliers (T1-T10)
+- New stamina calculations: "Stamina Drain Time", "Effort per Sitting", "Recharge Timer"
+- Added mini reset button for Task & Effort section
+- Enhanced results display with detailed stamina breakdown
+- Removed current stamina tracking, simplified to max stamina only
+- Improved spinner button increments (removed +10/-10, added +100/+1k/+10k/+100k)
+- Added time calculation disclaimer for accuracy issues
+- Better two-column layout for effort inputs (Required vs Completed)
+- Enhanced food consumption tracking and warnings
+
+### Version 1.0.51 - 27-08-2025
+- Compact design improvements across all calculators
+- Fixed responsive layout issues for better mobile experience
+- UI consistency enhancements
+- Fixed light/dark mode toggle functionality
+- Layout improvements across all calculators
+
+### Version 1.0.0 - 24-08-2025
+- **Initial launch** with three core calculators
+- Effort Calculator: stamina management, food buffs, tool tiers T0-T10
+- Rarity Calculator: probability calculations, multi-attempt analysis
+- Materials Calculator: resource planning and optimization
+- Dark gaming interface with mobile support
+- Complete rarity system (Common to Mythic)
