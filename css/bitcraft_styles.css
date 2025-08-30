@@ -576,6 +576,47 @@ body {
     font-size: 1.2em;
 }
 
+/* Compact Mode Toggles */
+.mode-toggle-container-compact {
+    display: flex;
+    gap: 4px;
+}
+
+.mode-toggle-compact {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 4px;
+    color: var(--text-secondary);
+    font-size: 0.75em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 60px;
+    justify-content: center;
+    height: 24px;
+}
+
+.mode-toggle-compact:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+.mode-toggle-compact.active {
+    background: var(--accent-primary);
+    border-color: var(--accent-primary);
+    color: white;
+    font-weight: 600;
+}
+
+.mode-toggle-compact .mode-icon {
+    font-size: 0.8em;
+}
+
 /* === HEADER STYLES === */
 .title {
     text-align: center;
@@ -633,6 +674,12 @@ body {
     padding-bottom: 0;
     text-align: left;
     flex: 1;
+}
+
+.section-header .header-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
 .mini-reset-btn {
@@ -1353,7 +1400,7 @@ body {
 
 .result-sections {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
     gap: 12px;
     margin-top: 12px;
 }
@@ -1400,6 +1447,7 @@ body {
     font-weight: 800;
     color: #ffd54f;
 }
+
 
 /* === COMPACT RESULT PANELS === */
 .result-panels {
@@ -1796,6 +1844,23 @@ body {
     }
 }
 
+/* === TABLET RESPONSIVE === */
+@media (max-width: 1200px) {
+    .result-sections {
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+    
+    .job-settings-row-three {
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+    
+    .job-setting-column-three:last-child {
+        grid-column: 1 / -1;
+    }
+}
+
 @media (max-width: 900px) {
     body {
         padding-top: 130px;
@@ -2153,6 +2218,49 @@ body {
     min-width: 0;
 }
 
+.job-settings-row-three {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-top: 12px;
+    margin-bottom: 16px;
+}
+
+.job-setting-column-three {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+.job-settings-row-single {
+    display: flex;
+    justify-content: center;
+    margin-top: 12px;
+    margin-bottom: 16px;
+}
+
+.job-setting-column-single {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 48%;
+    min-width: 0;
+}
+
+.job-settings-row-full {
+    display: block;
+    margin-top: 12px;
+    margin-bottom: 16px;
+}
+
+.job-setting-column-full {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+}
+
 /* Effort Inputs Row: Task Effort + Effort Completed/Remaining side-by-side */
 .effort-inputs-row {
     display: grid;
@@ -2193,9 +2301,13 @@ body {
 
 /* Mobile responsive - stack columns */
 @media (max-width: 768px) {
-    .tier-rarity-row, .controls-row, .job-settings-row, .effort-inputs-row {
+    .tier-rarity-row, .controls-row, .job-settings-row, .job-settings-row-three, .effort-inputs-row {
         grid-template-columns: 1fr;
         gap: 12px;
+    }
+    
+    .job-setting-column-single {
+        width: 100%;
     }
     
     .equal-row {

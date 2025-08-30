@@ -64,19 +64,19 @@
                 <div class="input-section">
                     <div class="section-header">
                         <div class="section-title">📋 Task & Effort</div>
-                        <button class="mini-reset-btn" onclick="resetTaskEffortFields()" title="Reset Task & Effort fields">🔄</button>
-                    </div>
-                    
-                    <!-- Mode Toggle -->
-                    <div class="mode-toggle-container">
-                        <button class="mode-toggle active" id="craftingMode" onclick="setMode('crafting')">
-                            <span class="mode-icon">🔨</span>
-                            <span>Crafting Mode</span>
-                        </button>
-                        <button class="mode-toggle" id="gatheringMode" onclick="setMode('gathering')">
-                            <span class="mode-icon">⛏️</span>
-                            <span>Gathering Mode</span>
-                        </button>
+                        <div class="header-controls">
+                            <div class="mode-toggle-container-compact">
+                                <button class="mode-toggle-compact active" id="craftingMode" onclick="setMode('crafting')">
+                                    <span class="mode-icon">🔨</span>
+                                    <span>Crafting</span>
+                                </button>
+                                <button class="mode-toggle-compact" id="gatheringMode" onclick="setMode('gathering')">
+                                    <span class="mode-icon">⛏️</span>
+                                    <span>Gathering</span>
+                                </button>
+                            </div>
+                            <button class="mini-reset-btn" onclick="resetTaskEffortFields()" title="Reset Task & Effort fields">🔄</button>
+                        </div>
                     </div>
 
                     <!-- Row 1: Task Effort Required + Effort Remaining/Completed -->
@@ -123,7 +123,7 @@
                         </div>
                     </div>
 
-                    <!-- Row 2: Time per Tick + Job Tier -->
+                    <!-- Row 2: Crafting Speed + XP per Tick -->
                     <div class="job-settings-row">
                         <div class="job-setting-column">
                             <label class="input-label" for="tickTimeTool">Crafting Speed (Secs per Tick)</label>
@@ -142,6 +142,28 @@
                             </div>
                         </div>
                         <div class="job-setting-column">
+                            <label class="input-label" for="xpPerTick">XP per Tick</label>
+                            <div class="number-input-container">
+                                <input type="number" id="xpPerTick" class="input-field number-input" placeholder="e.g., 1" value="1" step="1" min="0" oninput="calculateTime()">
+                                <div class="spinner-buttons-large">
+                                    <div class="spinner-buttons-row">
+                                        <button class="spinner-btn-large" onclick="adjustValue('xpPerTick', 1)">+1</button>
+                                        <button class="spinner-btn-large" onclick="adjustValue('xpPerTick', 5)">+5</button>
+                                        <button class="spinner-btn-large" onclick="adjustValue('xpPerTick', 10)">+10</button>
+                                    </div>
+                                    <div class="spinner-buttons-row">
+                                        <button class="spinner-btn-large" onclick="adjustValue('xpPerTick', -1)">-1</button>
+                                        <button class="spinner-btn-large" onclick="adjustValue('xpPerTick', -5)">-5</button>
+                                        <button class="spinner-btn-large" onclick="adjustValue('xpPerTick', -10)">-10</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 3: Job Tier -->
+                    <div class="job-settings-row-full">
+                        <div class="job-setting-column-full">
                             <label class="input-label" for="jobTier">Job Tier (Stamina Drain)</label>
                             <select class="dropdown-select" id="jobTier">
                                 <option value="1" selected>T1 (0.75x drain)</option>
@@ -255,9 +277,13 @@
                                 <span id="staminaRegen">0.25/s (base)</span>
                             </div>
                             <div class="food-stat-line">
+                                <span>Food Stamina Regen:</span>
+                                <span id="foodStaminaRegen">+0/s</span>
+                            </div>
+                            <!-- <div class="food-stat-line">
                                 <span>Crafting Speed:</span>
                                 <span id="craftingSpeed">0%</span>
-                            </div>
+                            </div> -->
                         </div>
                         <div class="food-disclaimer">
                             ⚠️ Note: Speed buff does not affect tick time in this calculator
@@ -290,9 +316,29 @@
                             <span>Remaining Ticks:</span>
                             <span id="remainingTicks">--</span>
                         </div>
-                        <div class="result-line result-line-large">
-                            <span>Progress:</span>
+                                                <div class="result-line">
+                            <span>Effort per Sitting:</span>
+                            <span id="effortPerSitting">--</span>
+                        </div>
+                        <div class="result-line result-line-large result-line-warning">
+                            <span>📊 Progress:</span>
                             <span id="progressPercent">--</span>
+                        </div>
+                    </div>
+
+                    <div class="result-section">
+                        <div class="result-section-title">⭐ XP Rewards</div>
+                        <div class="result-line">
+                            <span>Remaining XP:</span>
+                            <span id="remainingXp">--</span>
+                        </div>
+                        <div class="result-line">
+                            <span>XP per Sitting:</span>
+                            <span id="xpPerSitting">--</span>
+                        </div>
+                        <div class="result-line result-line-large result-line-warning">
+                            <span>⭐ Total XP (Job):</span>
+                            <span id="totalXpJob">--</span>
                         </div>
                     </div>
 
@@ -319,20 +365,16 @@
                             <span id="staminaUsage">--</span>
                         </div>
                         <div class="result-line">
-                            <span>Stamina Drain Time:</span>
-                            <span id="staminaPerSitting">--</span>
-                        </div>
-                        <div class="result-line">
-                            <span>Effort per Sitting:</span>
-                            <span id="effortPerSitting">--</span>
+                            <span>Regen Rate:</span>
+                            <span id="regenRateDisplay">--</span>
                         </div>
                         <div class="result-line">
                             <span>Recharge Timer:</span>
                             <span id="rechargeTimerValue">--</span>
                         </div>
                         <div class="result-line">
-                            <span>Regen Rate:</span>
-                            <span id="regenRateDisplay">--</span>
+                            <span>Stamina Drain Time - per Sitting:</span>
+                            <span id="staminaPerSitting">--</span>
                         </div>
                         <div class="result-line result-line-large result-line-warning" id="foodNeededLine">
                             <span>🍽️ Food Needed:</span>

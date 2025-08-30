@@ -50,12 +50,17 @@ A comprehensive calculator suite for BitCraft players to optimize crafting sessi
 
 ## Changelog
 
-### Version 1.0.3 - 30-09-2025
+### Version 1.0.4 - 30-08-2025
+- Added XP calculations for the Effort → Time Calculator
+- Moved mode toggles to Task & Effort header, for a more compact layout
+- Reorganized the calculation results to make them clearer
+
+### Version 1.0.3 - 30-08-2025
 - Updated header with new logo and refined layout, and implemented footer
 - Added website favicon
 - Improved dark mode for a more minimal look
 
-### Version 1.0.2 - 29-09-2025
+### Version 1.0.2 - 29-08-2025
 - Major effort calculator overhaul with crafting/gathering modes
 - Added Job Tier system with stamina drain multipliers (T1-T10)
 - New stamina calculations: "Stamina Drain Time", "Effort per Sitting", "Recharge Timer"
