@@ -184,6 +184,7 @@ function resetToDefaults() {
     if (document.getElementById('taskEffortTool')) document.getElementById('taskEffortTool').value = '10000';
     if (document.getElementById('effortDoneTool')) document.getElementById('effortDoneTool').value = '0';
     if (document.getElementById('tickTimeTool')) document.getElementById('tickTimeTool').value = '1.6';
+    if (document.getElementById('xpPerTick')) document.getElementById('xpPerTick').value = '1';
     if (document.getElementById('toolTier')) document.getElementById('toolTier').value = '1';
     if (document.getElementById('toolRarity')) document.getElementById('toolRarity').value = 'common';
     if (document.getElementById('maxStamina')) document.getElementById('maxStamina').value = '100';
@@ -202,6 +203,7 @@ function resetTaskEffortFields() {
     if (document.getElementById('taskEffortTool')) document.getElementById('taskEffortTool').value = '10000';
     if (document.getElementById('effortDoneTool')) document.getElementById('effortDoneTool').value = '0';
     if (document.getElementById('tickTimeTool')) document.getElementById('tickTimeTool').value = '1.6';
+    if (document.getElementById('xpPerTick')) document.getElementById('xpPerTick').value = '1';
     if (document.getElementById('jobTier')) document.getElementById('jobTier').value = '1';
     
     // Recalculate after reset
@@ -529,19 +531,26 @@ function adjustValue(inputId, increment) {
 function updateFoodStats() {
     const foodTypeSelect = document.getElementById('foodType');
     const staminaRegenDisplay = document.getElementById('staminaRegen');
+    const foodStaminaRegenDisplay = document.getElementById('foodStaminaRegen');
     const craftingSpeedDisplay = document.getElementById('craftingSpeed');
     
-    if (!foodTypeSelect || !staminaRegenDisplay || !craftingSpeedDisplay) return;
+    if (!foodTypeSelect || !staminaRegenDisplay || !foodStaminaRegenDisplay) return;
     
     const foodType = foodTypeSelect.value;
     const foodStats = foodData[foodType];
     
     if (foodStats) {
-        staminaRegenDisplay.textContent = 
-            `${foodStats.staminaRegen}/s ${foodType === 'none' ? '(base)' : '(+' + (foodStats.staminaRegen - 0.25) + ' from food)'}`;
+        // Always show base regen as 0.25/s
+        staminaRegenDisplay.textContent = '0.25/s (base)';
         
-        craftingSpeedDisplay.textContent = 
-            foodStats.craftingSpeed > 0 ? `+${foodStats.craftingSpeed}%` : '0%';
+        // Show only the food bonus on the second line
+        const foodBonus = foodStats.staminaRegen - 0.25;
+        foodStaminaRegenDisplay.textContent = foodBonus > 0 ? `+${foodBonus}/s` : '+0/s';
+        
+        if (craftingSpeedDisplay) {
+            craftingSpeedDisplay.textContent = 
+                foodStats.craftingSpeed > 0 ? `+${foodStats.craftingSpeed}%` : '0%';
+        }
     }
     
     setTimeout(calculateTime, 100);
@@ -560,13 +569,14 @@ function calculateTime() {
     const taskEffortInput = document.getElementById('taskEffortTool');
     const effortDoneInput = document.getElementById('effortDoneTool');
     const tickTimeInput = document.getElementById('tickTimeTool');
+    const xpPerTickInput = document.getElementById('xpPerTick');
     const jobTierSelect = document.getElementById('jobTier');
     const toolTierSelect = document.getElementById('toolTier');
     const toolRarityInput = document.getElementById('toolRarity');
     const maxStaminaInput = document.getElementById('maxStamina');
     const foodTypeSelect = document.getElementById('foodType');
     
-    if (!taskEffortInput || !effortDoneInput || !tickTimeInput || !jobTierSelect || 
+    if (!taskEffortInput || !effortDoneInput || !tickTimeInput || !xpPerTickInput || !jobTierSelect || 
         !toolTierSelect || !toolRarityInput || !maxStaminaInput || !foodTypeSelect) {
         console.error('Required input elements not found');
         return;
@@ -591,6 +601,7 @@ function calculateTime() {
     const toolPower = toolData[tier] && toolData[tier][rarity] ? toolData[tier][rarity] : toolData[1]['common'];
     
     let tickTime = parseFloat(tickTimeInput.value) || 1.6;
+    const xpPerTick = Math.max(0, Math.floor(parseFloat(xpPerTickInput.value) || 1)); // Ensure integer, minimum 0
     
     // Get food type for stamina calculations
     const foodType = foodTypeSelect.value || 'none';
@@ -643,6 +654,10 @@ function calculateTime() {
     const baseTotalSeconds = totalTicksFromStart * tickTime;
     const progressPercent = ((effortDone / taskEffort) * 100).toFixed(1);
     
+    // XP calculations
+    const totalXpJob = totalTicksFromStart * xpPerTick;
+    const remainingXp = remainingTicks * xpPerTick;
+    
     // Calculate stamina usage and breaks with job tier multiplier (independent of tool power)
     // Stamina drains at a base of 1 per tick, with job tier multiplier applied
     const jobTier = parseInt(jobTierSelect.value) || 1;
@@ -686,6 +701,7 @@ function calculateTime() {
     // Calculate effort per full stamina sitting
     const ticksPerSitting = Math.floor(maxStamina / staminaPerTick);
     const effortPerSitting = ticksPerSitting * toolPower;
+    const xpPerSitting = ticksPerSitting * xpPerTick;
     const percentOfRemaining = (effortPerSitting / remainingEffort) * 100;
     
     // Recharge timer: baseline full-bar recharge time (independent of current stamina)
@@ -732,6 +748,8 @@ function calculateTime() {
             'resultValue': formatTime(totalTimeWithBreaks),
             'remainingEffort': remainingEffort.toLocaleString(),
             'remainingTicks': remainingTicks.toLocaleString(),
+            'totalXpJob': totalXpJob.toLocaleString() + ' XP',
+            'remainingXp': remainingXp.toLocaleString() + ' XP',
             'totalTimeFromStart': formatTime(baseTotalSeconds),
             'progressPercent': progressPercent + '%',
             'staminaUsage': Math.ceil(staminaUsed) + ' stamina' + (staminaDrainMultiplier !== 1.0 ? ` (${staminaPerTick}/tick)` : ''),
@@ -741,6 +759,7 @@ function calculateTime() {
             'foodConsumptions': foodType === 'none' ? 'no food selected' : foodConsumptions + (foodConsumptions === 1 ? ' meal' : ' meals'),
             'staminaPerSitting': formatTime(staminaPerSitting),
             'effortPerSitting': effortPerSitting.toLocaleString() + ` (${percentOfRemaining.toFixed(1)}%)`,
+            'xpPerSitting': xpPerSitting.toLocaleString() + ' XP',
             'rechargeTimerValue': formatTime(rechargeSeconds)
         };
         
