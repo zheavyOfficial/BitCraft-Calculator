@@ -50,6 +50,11 @@ A comprehensive calculator suite for BitCraft players to optimize crafting sessi
 
 ## Changelog
 
+### Version 1.0.3 - 30-09-2025
+- Updated header with new logo and refined layout, and implemented footer
+- Added website favicon
+- Improved dark mode for a more minimal look
+
 ### Version 1.0.2 - 29-09-2025
 - Major effort calculator overhaul with crafting/gathering modes
 - Added Job Tier system with stamina drain multipliers (T1-T10)

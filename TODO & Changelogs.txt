@@ -5,22 +5,34 @@ TODO:
 
 
     **Rarity Calculator**
-
+        uncommon rarity results in white mode is too light and isn't very visible 
 
     **Tools & Materials**
-    Change raw material to show all crafted materials and add another for raw material that can only be enabled if the other toggle is down. Add the data for it
+        Change raw material to show all crafted materials and add another for raw material that can only be enabled if the other toggle is down. Add the data for it
 
     **All**
+        do a clean up on all code, move all the style to css files only, dont integrate them within the html files - use unified styling accross the board for all the pages, if anything needs to be different make sure to implenet properly within the css file
+        ensure light/dark mode are working properly, there are some inconsistencies now after going back some versions ago
+        integrate all the proper changes needed in the partials files for header/fooder to have everything consistent accross the board for all the pages
 
-
+    header
+        add discord button with the link to my discord - with icon of discord and the purple colors of discord branding - https://discord.gg/xEHrnQqr
+        remove bitcraftools and the animated icons - instead use the name of the tool title from the readme file along side with the website icon for the header
+        make sure the name and logo are all the way on the right side of the page without much padding/margin
+        the same goes for the discord buttong and the light/dark mode toggles to be all the way on the left
 
 
 
 
 
 Changelogs:
-### Version 1.0.3 - In Development
+### Version 1.0.4 -  In Development
 - 
+
+### Version 1.0.3 - 30-09-2025
+- Updated header with new logo and refined layout, and implemented footer
+- Added website favicon
+- Improved dark mode for a more minimal look
 
 ### Version 1.0.2 - 29-09-2025
 - Major effort calculator overhaul with crafting/gathering modes
