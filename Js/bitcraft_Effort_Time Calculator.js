@@ -39,6 +39,20 @@ const staminaDrainMultipliers = {
     10: 1.86
 };
 
+// XP multipliers by tier and mode
+const xpMultipliers = {
+    1: { crafting: 1.60, gathering: 1.25 },
+    2: { crafting: 1.76, gathering: 1.38 },
+    3: { crafting: 1.92, gathering: 1.50 },
+    4: { crafting: 2.08, gathering: 1.63 },
+    5: { crafting: 2.24, gathering: 1.75 },
+    6: { crafting: 2.40, gathering: 1.88 },
+    7: { crafting: 2.56, gathering: 2.00 },
+    8: { crafting: 2.72, gathering: 2.13 },
+    9: { crafting: 2.88, gathering: 2.25 },
+    10: { crafting: 3.04, gathering: 2.38 }
+};
+
 // Global state
 let currentMode = 'crafting'; // 'crafting' or 'gathering'
 let isUpdatingSlider = false; // Guard against recursive updates
@@ -184,7 +198,6 @@ function resetToDefaults() {
     if (document.getElementById('taskEffortTool')) document.getElementById('taskEffortTool').value = '10000';
     if (document.getElementById('effortDoneTool')) document.getElementById('effortDoneTool').value = '0';
     if (document.getElementById('tickTimeTool')) document.getElementById('tickTimeTool').value = '1.6';
-    if (document.getElementById('xpPerTick')) document.getElementById('xpPerTick').value = '1';
     if (document.getElementById('toolTier')) document.getElementById('toolTier').value = '1';
     if (document.getElementById('toolRarity')) document.getElementById('toolRarity').value = 'common';
     if (document.getElementById('maxStamina')) document.getElementById('maxStamina').value = '100';
@@ -203,7 +216,6 @@ function resetTaskEffortFields() {
     if (document.getElementById('taskEffortTool')) document.getElementById('taskEffortTool').value = '10000';
     if (document.getElementById('effortDoneTool')) document.getElementById('effortDoneTool').value = '0';
     if (document.getElementById('tickTimeTool')) document.getElementById('tickTimeTool').value = '1.6';
-    if (document.getElementById('xpPerTick')) document.getElementById('xpPerTick').value = '1';
     if (document.getElementById('jobTier')) document.getElementById('jobTier').value = '1';
     
     // Recalculate after reset
@@ -569,14 +581,13 @@ function calculateTime() {
     const taskEffortInput = document.getElementById('taskEffortTool');
     const effortDoneInput = document.getElementById('effortDoneTool');
     const tickTimeInput = document.getElementById('tickTimeTool');
-    const xpPerTickInput = document.getElementById('xpPerTick');
     const jobTierSelect = document.getElementById('jobTier');
     const toolTierSelect = document.getElementById('toolTier');
     const toolRarityInput = document.getElementById('toolRarity');
     const maxStaminaInput = document.getElementById('maxStamina');
     const foodTypeSelect = document.getElementById('foodType');
     
-    if (!taskEffortInput || !effortDoneInput || !tickTimeInput || !xpPerTickInput || !jobTierSelect || 
+    if (!taskEffortInput || !effortDoneInput || !tickTimeInput || !jobTierSelect || 
         !toolTierSelect || !toolRarityInput || !maxStaminaInput || !foodTypeSelect) {
         console.error('Required input elements not found');
         return;
@@ -601,7 +612,11 @@ function calculateTime() {
     const toolPower = toolData[tier] && toolData[tier][rarity] ? toolData[tier][rarity] : toolData[1]['common'];
     
     let tickTime = parseFloat(tickTimeInput.value) || 1.6;
-    const xpPerTick = Math.max(0, Math.floor(parseFloat(xpPerTickInput.value) || 1)); // Ensure integer, minimum 0
+    
+    // Calculate XP per tick based on tool power, job tier, and mode
+    const jobTier = parseInt(jobTierSelect.value) || 1;
+    const xpMultiplier = xpMultipliers[jobTier] ? xpMultipliers[jobTier][currentMode] : 1.0;
+    const xpPerTick = parseFloat((toolPower * xpMultiplier).toFixed(2));
     
     // Get food type for stamina calculations
     const foodType = foodTypeSelect.value || 'none';
@@ -660,7 +675,6 @@ function calculateTime() {
     
     // Calculate stamina usage and breaks with job tier multiplier (independent of tool power)
     // Stamina drains at a base of 1 per tick, with job tier multiplier applied
-    const jobTier = parseInt(jobTierSelect.value) || 1;
     const staminaDrainMultiplier = staminaDrainMultipliers[jobTier] || 1.0;
     const staminaPerTick = 1 * staminaDrainMultiplier; // Base 1 per tick * multiplier
     const staminaUsed = remainingTicks * staminaPerTick; // Total stamina for remaining ticks
@@ -748,6 +762,7 @@ function calculateTime() {
             'resultValue': formatTime(totalTimeWithBreaks),
             'remainingEffort': remainingEffort.toLocaleString(),
             'remainingTicks': remainingTicks.toLocaleString(),
+            'xpPerTickDisplay': xpPerTick.toFixed(2) + ' XP',
             'totalXpJob': totalXpJob.toLocaleString() + ' XP',
             'remainingXp': remainingXp.toLocaleString() + ' XP',
             'totalTimeFromStart': formatTime(baseTotalSeconds),

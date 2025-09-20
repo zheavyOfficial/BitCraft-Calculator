@@ -227,7 +227,27 @@ let selectedTier = null;
 let selectedTool = 'pickaxe'; // Fixed tool since all tools have same costs
 let quantity = 1;
 let showRawMaterials = false;
+let allItems = []; // Store all items loaded from API
 
+// Load all items from API on page load
+async function loadAllItems() {
+  try {
+    console.log('Loading all items from API...');
+    const res = await fetch('http://localhost:3000/proxy/items');
+    
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    }
+    
+    const data = await res.json();
+    allItems = Array.isArray(data) ? data : data?.items ?? [];
+    console.log(`Loaded ${allItems.length} items from API`);
+    
+  } catch (error) {
+    console.error("Failed to load items:", error);
+    allItems = [];
+  }
+}
 
 function selectTier(tier) {
     selectedTier = tier;
@@ -401,7 +421,7 @@ function expandToolMaterials(materials, depth = 0) {
     return expandedMaterials;
 }
 
-function calculateMaterials() {
+    async function calculateMaterials() {
     if (selectedTier === null) return;
     
     const resultDiv = document.getElementById('materialsResult');
@@ -574,8 +594,94 @@ function resetToDefaults() {
     }
 }
 
+function searchForItem(){
+  const input = document.getElementById("itemSearch");
+  const query = input.value.trim().toLowerCase();
+  const materialsGrid = document.getElementById("materialsGrid");
+  
+  if (!query) {
+    materialsGrid.innerHTML = '';
+    return;
+  }
+  
+  // Check if items are loaded
+  if (allItems.length === 0) {
+    materialsGrid.innerHTML = `
+      <div class="t0-message">
+        <div class="t0-emoji">⏳</div>
+        <div class="t0-text">Loading items...</div>
+        <div class="t0-subtext">Please wait while items are being loaded from the server</div>
+      </div>
+    `;
+    return;
+  }
+  
+  // Filter items by name containing search query, volume 0 and rarity 1
+  const filteredItems = allItems.filter(item => {
+    const name = (item.name ?? item.displayName ?? "").toLowerCase();
+    const matchesName = name.includes(query);
+    // const hasVolumeZero = (item.volume === 0 || item.volume === "0");
+    // const hasRarityOne = (item.rarity === 1 || item.rarity === "1");
+    
+    return matchesName ;//&& hasVolumeZero && hasRarityOne;
+  });
+
+  if (filteredItems.length === 0) {
+    materialsGrid.innerHTML = `
+      <div class="t0-message">
+        <div class="t0-emoji">😕</div>
+        <div class="t0-text">No items found for "${query}"</div>
+        <div class="t0-subtext">with volume 0 and rarity 1</div>
+      </div>
+    `;
+    return;
+  }
+
+  // Sort results by name
+  filteredItems.sort((a, b) => {
+    const nameA = (a.name ?? a.displayName ?? "").toLowerCase();
+    const nameB = (b.name ?? b.displayName ?? "").toLowerCase();
+    return nameA.localeCompare(nameB);
+  });
+
+  // Build markup for filtered items with icons
+  const html = filteredItems.map(item => {
+    const name = item.name ?? item.displayName ?? "(no name)";
+    const tier = item.tier ?? "?";
+    var iconPath = item.iconAssetName;
+  if (!item.iconAssetName.startsWith("GeneratedIcons/")){
+     iconPath=`GeneratedIcons/${item.iconAssetName}`;
+  }
+  
+ 
+const icon = iconPath
+  ? `<img src="https://bitjita.com/${iconPath}.webp" alt="${name}" class="item-icon" />`
+  : '';
+    return `
+      <div class="search-result-item">
+        <div class="item-info">
+          <div class="item-icon-container">${icon}</div>
+          <div class="item-details">
+            <div class="item-name">${name}</div>
+            <div class="item-tier">T${tier}</div>
+          </div>
+        </div>
+        <div class="item-stats">
+          <div class="stat">Vol: ${item.iconAssetName ?? 0}</div>
+          
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  // Insert into DOM
+  materialsGrid.innerHTML = html;
+}
+
 // Event listeners
 document.addEventListener('DOMContentLoaded', function() {
+    // Load all items from API on page load
+    loadAllItems();
     
     // Save state function for materials calculator
     const saveMaterialsState = () => {
@@ -644,6 +750,18 @@ document.addEventListener('DOMContentLoaded', function() {
     if (rawToggle) {
         rawToggle.addEventListener('change', function() {
             saveMaterialsState();
+        });
+    }
+
+    // Add input listener for search input with debouncing
+    const itemSearch = document.getElementById('itemSearch');
+    if (itemSearch) {
+        let searchTimeout;
+        itemSearch.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                searchForItem();
+            }, 300); // Debounce for 300ms
         });
     }
 }); 
