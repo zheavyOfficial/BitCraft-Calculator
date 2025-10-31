@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(start index.html)",
-      "Bash(powershell:*)"
+      "Bash(powershell:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []

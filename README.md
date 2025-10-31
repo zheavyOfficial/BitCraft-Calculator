@@ -49,6 +49,9 @@ A comprehensive calculator suite for BitCraft players to optimize crafting sessi
 **Tools & Materials Calculator**: Enter your crafting projects to get exact material requirements and optimize resource planning for tool creation.
 
 ## Changelog
+### Version 1.0.6 - 01-11-2025
+- Added new **Food Buffs** up to **Tier 10**.
+
 ### Version 1.0.5 - 20-09-2025
 - Removed manual input for **XP per Tick** → now automatically calculated based on tool power, job tier, and activity type (crafting/gathering).
 - Temporarily removed **Tools & Materials Calculator** from navigation while it’s being reworked.

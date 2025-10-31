@@ -17,12 +17,16 @@ const toolData = {
 // Food buff data
 const foodData = {
     none: { staminaRegen: 0.25, craftingSpeed: 0 },
-    plain: { staminaRegen: 7.25, craftingSpeed: 8.2 },
-    savory: { staminaRegen: 9.25, craftingSpeed: 8.4 },
-    zesty: { staminaRegen: 11.25, craftingSpeed: 8.6 },
-    fine: { staminaRegen: 13.25, craftingSpeed: 8.8 },
-    succulent: { staminaRegen: 15.25, craftingSpeed: 9.0 },
-    ambrosial: { staminaRegen: 17.25, craftingSpeed: 9.2 }
+    Plain: { staminaRegen: 7.25, craftingSpeed: 8.2 },
+    Savory: { staminaRegen: 9.25, craftingSpeed: 8.4 },
+    Zesty: { staminaRegen: 11.25, craftingSpeed: 8.6 },
+    Fine: { staminaRegen: 13.25, craftingSpeed: 8.8 },
+    Succulent: { staminaRegen: 15.25, craftingSpeed: 9.0 },
+    Ambrosial: { staminaRegen: 17.25, craftingSpeed: 9.2 },
+    Flavorful: { staminaRegen: 19, craftingSpeed: 9.4 },
+    Delicious : { staminaRegen: 20, craftingSpeed: 9.6 },
+    Scrumptious : { staminaRegen: 21, craftingSpeed: 9.8 },
+    Delectable: { staminaRegen: 22, craftingSpeed: 10 }
 };
 
 // Stamina drain multipliers by job tier (independent of tool power)
