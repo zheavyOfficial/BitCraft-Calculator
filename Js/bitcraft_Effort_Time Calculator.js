@@ -313,16 +313,76 @@ function updateRarityButtonStates(selectedRarity) {
     });
 }
 
+
+
+
+
+
+
+
+
+
+
 // ===== TOOL POWER & SLIDER SYNC =====
 
+
+
+
+
+
+
+
+
+
+
 function updateFromSlider() {
+
+
+
+
+    
     if (isUpdatingSlider) return; // Prevent recursive updates
+
+
+
+
+    
+    
+
+
+
+
     
     const slider = document.getElementById('toolPowerSlider');
+
+
+
+
+    
     if (!slider) return;
+
+
+
+
+    
+    
+
+
+
+
     
     const sliderValue = parseInt(slider.value);
+
+
+
+
+    
     const validPowers = getAllValidToolPowers();
+
+
+
+
+    
     
     // Guard against invalid slider values
     if (sliderValue < 0 || sliderValue >= validPowers.length) {
